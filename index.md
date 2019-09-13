@@ -12,9 +12,9 @@ I started my college career here at Sierra College back in 2002, continuing on t
 	Nothing. I’m going to crush this class.
 
 ## What's the most important thing in your life?
-	Kaizen. Daily improvement.
+	[linky] (https://en.wikipedia.org/wiki/Kaizen "Kaizen"). Daily improvement.
 
-##Something interesting about yourself
+## Something interesting about yourself
 	I live in an underground house.
 
 
