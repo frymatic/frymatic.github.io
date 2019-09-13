@@ -10,16 +10,18 @@ I started my college career here at Sierra College back in 2002, continuing on t
 
 ## What might prevent you from doing well in this class?
 	Nothing. I’m going to crush this class.
+
 ## What's the most important thing in your life?
 	Kaizen. Daily improvement.
+
 ##Something interesting about yourself
 	I live in an underground house.
 
 
 ### Portfolio
 
-- Fundamentals of Programming in Python
-- Internet of Things (IoT)
-- Secure Scripting
-- Data Analytics
-- Python Hackathon
+- [an example](Fundamentals_of_Programming_in_Python.md "Title")"Fundamentals of Programming in Python"
+- "Internet of Things (IoT)")
+- "Secure Scripting")
+- "Data Analytics")
+- "Python Hackathon")
