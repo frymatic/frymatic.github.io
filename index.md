@@ -1,37 +1,21 @@
-## Welcome to GitHub Pages
+## Greetings!
 
-You can use the [editor on GitHub](https://github.com/frymatic/hooten-portfolio/edit/master/index.md) to maintain and preview the content for your website in Markdown files.
+My name is William "Woody" Hooten. I started my college career here at Sierra College back in 2002, continuing on to UC San Diego where I earned a BS in Cognitive Science, specializing in Human Computer Interaction. I spent a decade in Silicon Valley in a variety of startups, primarily on the business side of things. Not being a developer in Silicon Valley feels a lot like riding the bench. No matter how well the team’s doing, you don’t fully feel like you were a part of the outcome. Python seems to be a major language for a lot of the things I want to do. Also, a lot of companies I worked at did some pretty cool stuff with Python, and I always found it easy to read the codebase, so I’ve been fortunate to see firsthand how powerful this language can be.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+# IT75 - Python for Many Uses - Sierra College
 
-### Markdown
+## What might prevent you from doing well in this class?
+	Nothing. I’m going to crush this class.
+## What's the most important thing in your life?
+	Kaizen. Daily improvement.
+##Something interesting about yourself
+	I live in an underground house.
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
 
-```markdown
-Syntax highlighted code block
+### Portfolio
 
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/frymatic/hooten-portfolio/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+- Fundamentals of Programming in Python
+- Internet of Things (IoT)
+- Secure Scripting
+- Data Analytics
+- Python Hackathon
