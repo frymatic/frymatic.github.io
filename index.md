@@ -21,7 +21,7 @@ I started my college career here at Sierra College back in 2002, continuing on t
 # Portfolio
 
 - [Fundamentals of Programming in Python](Fundamentals_of_Programming_in_Python.md)
-- [Internet of Things (IoT)](Fundamentals_of_Programming_in_Python.md)
-- [Secure Scripting](Fundamentals_of_Programming_in_Python.md)
-- [Data Analytics](Fundamentals_of_Programming_in_Python.md)
-- [Python Hackathon](Fundamentals_of_Programming_in_Python.md)
+- [Internet of Things (IoT)](iot.md)
+- [Secure Scripting](secure_scripting.md)
+- [Data Analytics](Data_Analytics.md)
+- [Python Hackathon](Python_Hackathon.md)
