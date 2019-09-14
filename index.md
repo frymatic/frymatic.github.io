@@ -9,7 +9,7 @@ I started my college career here at Sierra College back in 2002, continuing on t
 # IT75 - Python for Many Uses - Sierra College
 
 ### What might prevent you from doing well in this class?
-Nothing. I’m going to crush this class.
+Nothing. I’m going to **_crush_** this class.
 
 ### What's the most important thing in your life?
 [Kaizen](https://en.wikipedia.org/wiki/Kaizen). Daily improvement.
