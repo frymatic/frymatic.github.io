@@ -21,6 +21,23 @@ My Rock Paper Scissors game.
 
 #* What makes this your best piece?
 I thought it was a pretty good use of Dictionaries to streamline the logic of determining wins.
+```python
+results = {
+'rock':['paper','scissors'],
+'paper':['scissors','rock'],
+'scissors':['rock','paper']
+}
+
+# determine result of the round. rock beats scissors, paper beats rock, scissors beat paper
+def compare(player, computer):
+
+	if player == computer: # from first version, equivalent inputs always resolved as ties, still useful in more streamline version
+		print("It's a tie! Play again.")
+	elif results[player][1] == computer: # check win condition at index 1 against computer's choice relative to the player's input
+		print("Player wins! Play again.") # proclaim the player as the winner
+	else:
+		print("Computer wins! Play again.") # proclaim the computer as the winner
+```
 
 #* How did you go about creating it?
 It first started as a partner project. In our initial pass, we had numerous If Elif trees to achieve the appropriate result. The we streamlined. 
