@@ -2,6 +2,8 @@
 
 ![python](https://i.imgur.com/PbehiH2.png)
 
+[github](https://github.com/frymatic/Fundamentals-of-Python)
+
 ```python
 s = "Python syntax highlighting"
 print s
