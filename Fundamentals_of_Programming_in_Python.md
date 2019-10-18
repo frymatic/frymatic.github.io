@@ -49,7 +49,7 @@ def compare(player, computer):
 
 ## How did you go about creating it?
 
-It first started as a partner project. In our initial pass, we had numerous If Elif trees to achieve the appropriate result. The we streamlined. 
+It first started as a partner project. In our initial pass, we had numerous If Elif trees to achieve the appropriate result. Then we streamlined individually. 
 
 ## What problems did you encounter? How did you solve them? 
 
@@ -57,11 +57,11 @@ We had some trouble with inputs. Try blocks did the trick.
 
 ## Of all the items included, which one was the hardest for you?   
 
-The Password Locker. Flow Control got a little messy at times. I think could probably be tightened up quite a bit given some time.
+The Password Locker. Flow Control got a little messy at times. I think it could probably be tightened up quite a bit given some time.
 
 ## What makes your strongest piece different from your weakest piece?
 
-The percentage of the code written by me. With the practice problems it was fill in the blanks. The ones starting from scratch felt better in terms of learning due to having to own each part of the structure.
+The percentage of the code written by me. With the practice problems it was fill in the blanks. The ones starting from scratch felt better in terms of learning due to having to own each part of the overall structure.
 
 ## What goals did you set for yourself? How well did you accomplish them?
 
