@@ -3,13 +3,13 @@
 
 ![python](https://i.imgur.com/PbehiH2.png)
 
-
+Unit 1 is done! I feel like I can say I have the Fundamentals of Python mastered, thanks to a pretty excellent class at Sierra College. Here's the portfolio of work so far:
 [github](https://github.com/frymatic/Fundamentals-of-Python)
 
-```python
-s = "Python syntax highlighting"
-print s
-```
+If you wanna see everything we've done though, this is probably a better starting point:
+[dropbox](https://www.dropbox.com/sh/20oetseuokictz7/AACu33oQrltq51L7O8bk2PKEa?dl=0)
+
+Some questions from the professor:
 
 #* How have you organized your portfolio and why is it in this order? 
 I started from the beginning, a very good place to start. Hello, world! I left a few things out that I found somewhat uninspiring for this showcase.
@@ -19,6 +19,7 @@ They're all that I've got!
 
 #* What piece would you like to remove from this collection? Why?
 Perhaps some of the practice problems? They get a little tedious to navigate if you're just working on something at the very end.
+![randomness](https://i.imgur.com/yfEIlGy.png)
 
 #* Which piece in your portfolio are you most proud of? Why?
 My Rock Paper Scissors game. 
@@ -57,18 +58,6 @@ The percentage of the code written by me. With the practice problems it was fill
 
 #* What goals did you set for yourself? How well did you accomplish them?
 Learn beyond the class wherever possible. I feel like I incorporate at least one thing outside the curriculum in each project reasonably well. 
-
-#* Why did you select this piece of work?
-
-
-#* What was particularly important to you during the process of creating this work?
-
-
-#* How does this relate to what you have learned before?
-
-
-#* Which piece would you most like to improve? Why?
-
 
 #* What is the one thing you would like someone to notice about your portfolio? Why?
 My commenting. I believe I write comments that are not only descriptive, but also somewhat entertaining, which I think is likely to be a welcome change of pace in the working world. It's one thing to be good, it's another thing to be a good team mate.
