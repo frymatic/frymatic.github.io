@@ -20,7 +20,6 @@ Most of these are components of the final IoT project where I was trying out var
 ## What piece would you like to remove from this collection? Why?
 
 Some of the practice problems probably don't deserve to see the light of day because they only received minor modification beyond their status off the shelf. 
-![randomness](https://i.imgur.com/yfEIlGy.png)
 
 ## Which piece in your portfolio are you most proud of?
 
