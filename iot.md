@@ -25,7 +25,7 @@ Some of the practice problems probably don't deserve to see the light of day bec
 
 ## Which piece in your portfolio are you most proud of?
 
-The one titled "hooten_stepwork.py", the IoT project we did. Pretty neat exercise to work with tight constraints (around 200 lines of python max per microbit program).
+The one titled "[hooten_stepwork.py](https://github.com/frymatic/Internet-of-Things/blob/master/hooten_stepwork.py)", the IoT project we did. Pretty neat exercise to work with tight constraints (around 200 lines of python max per microbit program).
 
 ## What makes this your best piece?
 
