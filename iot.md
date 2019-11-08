@@ -9,6 +9,8 @@ Unit 2 is done! Kinda wish this unit was a little longer since it seems like a f
 Like last time, for those curious about the full body of work, they can find it all in the dropbox for this course's classwork here:
 [dropbox](https://www.dropbox.com/sh/20oetseuokictz7/AACu33oQrltq51L7O8bk2PKEa?dl=0)
 
+![microbits](https://i.imgur.com/t6nvDJ6.jpg)
+
 Some questions from the professor:
 
 ## How have you organized your portfolio and why is it in this order?
