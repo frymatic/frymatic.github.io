@@ -9,8 +9,6 @@ Unit 2 is done! Kinda wish this unit was a little longer since it seems like a f
 Like last time, for those curious about the full body of work, they can find it all in the dropbox for this course's classwork here:
 [dropbox](https://www.dropbox.com/sh/20oetseuokictz7/AACu33oQrltq51L7O8bk2PKEa?dl=0)
 
-![microbits](https://i.imgur.com/t6nvDJ6.jpg)
-
 Some questions from the professor:
 
 ## How have you organized your portfolio and why is it in this order?
@@ -87,10 +85,12 @@ The goal I set for myself was to do something actually in the realm of what IoT 
 
 ## What is the one thing you would like someone to notice about your portfolio? Why?
 
-For Unit 2, I think I did a good header describing what I was building. I think that's pretty important.
+For the project in Unit 2, I think I did a good header describing what I was building. I think that's pretty important, it's your code's first impression to the reviewer.
 
 ## Do you feel that this collection of work really reflects your abilities and what you have achieved so far this year? Why or why not?
 
-StepWork was an ok demonstration of my ability to design and code within tight constraints. However, I feel I could better demonstrate my ability in developing IoT if I had more devices available to test with. The Internet of Things is most interesting when lots of things are talking to one another.
+StepWork was a good [MVP](https://en.wikipedia.org/wiki/Minimum_viable_product) demonstration of my ability to design and code within tight constraints. However, I feel I could better demonstrate my ability in developing for IoT if I had more devices available to test with. The Internet of Things is most interesting when lots of things are talking to one another.
+
+![microbits](https://i.imgur.com/t6nvDJ6.jpg)
 
 [Home](https://www.woodyhooten.com)
