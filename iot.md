@@ -83,7 +83,7 @@ The overall design. Of the weaker pieces, most were targeted at testing a single
 
 ## What goals did you set for yourself? How well did you accomplish them?
 
-Do something actually in the realm of what IoT is about: things, networked. Most of the projects around me were simply things, and a few were only internet. 
+The goal I set for myself was to do something actually in the realm of what IoT is about: things, networked. Generally speaking, I think I shipped a good [vertical slice](https://en.wikipedia.org/wiki/Vertical_slice). I noticed that of my classmates, most of the projects were simply things, and a few were only internet. Maybe one was also an "IoT" solution. 
 
 ## What is the one thing you would like someone to notice about your portfolio? Why?
 
