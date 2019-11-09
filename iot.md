@@ -1,5 +1,5 @@
 # Internet of Things
-[Back](https://www.woodyhooten.com)
+[Back](https://woodyhooten.com)
 
 ![hackathon](https://i.imgur.com/Y0uiyLv.png)
 
