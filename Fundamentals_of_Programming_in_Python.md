@@ -1,5 +1,5 @@
 # Fundamentals of Programming in Python
-[Back](http://woodyhooten.com)
+[Back](index.md)
 
 ![python](https://i.imgur.com/PbehiH2.png)
 
@@ -75,4 +75,4 @@ My commenting. I believe I write comments that are not only descriptive, but als
 
 Maybe. Generally speaking, nothing stumped me to the point where I had to struggle. Those are the moments where I find I learn the most. I think the real challenges are ahead, and I'm kinda excited for them.
 
-[Home](http://woodyhooten.com)
+[Home](index.md)

@@ -1,5 +1,5 @@
 # Internet of Things
-[Back](http://woodyhooten.com)
+[Back](index.md)
 
 ![hackathon](https://i.imgur.com/Y0uiyLv.png)
 
@@ -93,4 +93,4 @@ StepWork was a good [MVP](https://en.wikipedia.org/wiki/Minimum_viable_product) 
 
 ![micro:bits](https://i.imgur.com/t6nvDJ6.jpg)
 
-[Home](http://www.woodyhooten.com)
+[Home](index.md)
