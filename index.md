@@ -22,6 +22,4 @@ I live in an underground house.
 
 - [Fundamentals of Programming in Python](Fundamentals_of_Programming_in_Python.md)
 - [Internet of Things (IoT)](iot.md)
-- [Secure Scripting](secure_scripting.md)
-- [Data Analytics](Data_Analytics.md)
 - [Python Hackathon](Python_Hackathon.md)
