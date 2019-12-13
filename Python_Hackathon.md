@@ -5,9 +5,12 @@
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/8PhuePTCvQU" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
-For my final project I chose to continue a project that I started at work at the beginning of the summer: implementing the [Toast POS System](https://pos.toasttab.com/) at [Jack’s Urban Eats at Renaissance Creek in Roseville](https://www.yelp.com/biz/jacks-urban-eats-roseville).The project was initially pitched as a way for me to continue to develop my tech skills during the summer break. To research the system, I worked at the [Jack’s @ the Fountains in Roseville](https://www.yelp.com/biz/jacks-urban-eats-roseville-2) where a trial implementation was up a running. While I was there we made some updates to the implementation including an additional point of interaction. I delivered a Cost/Benefit analysis to stakeholders once I felt sufficiently versed in the system. The decision was then made to install the system not only at the initial target location, but at the majority of Jack’s Urban Eats stores. 
+For my final project I chose to continue a project that I started at work at the beginning of the summer: implementing the [Toast POS System](https://pos.toasttab.com/) at [Jack’s Urban Eats at Renaissance Creek in Roseville](https://www.yelp.com/biz/jacks-urban-eats-roseville).The project was initially pitched as a way for me to continue to develop my tech skills during the summer break. To research the system, I worked at the [Jack’s @ the Fountains in Roseville](https://www.yelp.com/biz/jacks-urban-eats-roseville-2) where a trial implementation was up a running. 
 
 ![store](https://i.imgur.com/vE9EPRx.jpg)
+
+While I was there we made some updates to the implementation including an additional point of interaction. I delivered a Cost/Benefit analysis to stakeholders once I felt sufficiently versed in the system. The decision was then made to install the system not only at the initial target location, but at the majority of Jack’s Urban Eats stores. 
+
 ![handheld](https://i.imgur.com/k4Jppvu.jpg)
 ![layout](https://i.imgur.com/une46sJ.png)
 
