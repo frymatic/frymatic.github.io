@@ -20,10 +20,30 @@ For the GUI automation project I turned in a stripped down version of reporting 
 
 Using Selenium, XPATHs make it easy to locate data within a webpage. I did my best to figure out the exact locations of all of the data necessary to properly populate a daily report for Jack's. Presently, I'm only able to get a few values out reliably. I suspect this is due to some sort of dynamic rendering reports, possibly in AJAX (or something like it.) Here's a list of XPATHS:
 
-![xpaths](https://i.imgur.com/Zj2bXX9.png)
+```python
+labor = {
+	"boh_hrs_reg" : ('F35','/html/body/div[2]/div[1]/div/div[2]/div[2]/div/div/div[4]/div/div[2]/div[1]/table[1]/tbody/tr[1]/td[2]'),
+	"boh_hrs_ot" : ('F35','/html/body/div[2]/div[1]/div/div[2]/div[2]/div/div/div[4]/div/div[2]/div[1]/table[1]/tbody/tr[1]/td[3]'),  # might need to de-dupe? these get combined... same with the rest of the hours fields
+	"boh_pay" : ('G35','/html/body/div[2]/div[1]/div/div[2]/div[2]/div/div/div[4]/div/div[2]/div[1]/table[1]/tbody/tr[1]/td[6]'),
+	"cash_hrs_reg" : ('F36','/html/body/div[2]/div[1]/div/div[2]/div[2]/div/div/div[4]/div/div[2]/div[1]/table[1]/tbody/tr[2]/td[2]'),
+	"cash_hrs_ot" : ('F36','/html/body/div[2]/div[1]/div/div[2]/div[2]/div/div/div[4]/div/div[2]/div[1]/table[1]/tbody/tr[2]/td[3]'),
+	"cash_pay" : ('G36','/html/body/div[2]/div[1]/div/div[2]/div[2]/div/div/div[4]/div/div[2]/div[1]/table[1]/tbody/tr[2]/td[6]'),
+	"foh_hrs_reg" : ('F37','/html/body/div[2]/div[1]/div/div[2]/div[2]/div/div/div[4]/div/div[2]/div[1]/table[1]/tbody/tr[3]/td[2]'),
+	"foh_hrs_ot" : ('F37','/html/body/div[2]/div[1]/div/div[2]/div[2]/div/div/div[4]/div/div[2]/div[1]/table[1]/tbody/tr[3]/td[3]'),
+	"foh_pay" : ('G37','/html/body/div[2]/div[1]/div/div[2]/div[2]/div/div/div[4]/div/div[2]/div[1]/table[1]/tbody/tr[3]/td[6]'),
+	"janitorial_hrs_reg" : ('F38','/html/body/div[2]/div[1]/div/div[2]/div[2]/div/div/div[4]/div/div[2]/div[1]/table[1]/tbody/tr[4]/td[2]'),
+	"janitorial_hrs_ot" : ('F38','/html/body/div[2]/div[1]/div/div[2]/div[2]/div/div/div[4]/div/div[2]/div[1]/table[1]/tbody/tr[4]/td[3]'),
+	"janitorial_pay" : ('G38','/html/body/div[2]/div[1]/div/div[2]/div[2]/div/div/div[4]/div/div[2]/div[1]/table[1]/tbody/tr[4]/td[6]'),
+	"lead_hrs_reg" : ('F39','/html/body/div[2]/div[1]/div/div[2]/div[2]/div/div/div[4]/div/div[2]/div[1]/table[1]/tbody/tr[5]/td[2]'),
+	"lead_hrs_ot" : ('F39','/html/body/div[2]/div[1]/div/div[2]/div[2]/div/div/div[4]/div/div[2]/div[1]/table[1]/tbody/tr[5]/td[3]'),
+	"lead_pay" : ('G39','/html/body/div[2]/div[1]/div/div[2]/div[2]/div/div/div[4]/div/div[2]/div[1]/table[1]/tbody/tr[5]/td[6]'),
+	"mgr_hrs_reg" : ('F40','/html/body/div[2]/div[1]/div/div[2]/div[2]/div/div/div[4]/div/div[2]/div[1]/table[1]/tbody/tr[6]/td[2]'),
+	"mgr_hrs_ot" : ('F40','/html/body/div[2]/div[1]/div/div[2]/div[2]/div/div/div[4]/div/div[2]/div[1]/table[1]/tbody/tr[6]/td[3]'),
+	"mgr_pay" : ('G40','/html/body/div[2]/div[1]/div/div[2]/div[2]/div/div/div[4]/div/div[2]/div[1]/table[1]/tbody/tr[6]/td[6]'),
+}
+```
 Though they aren't entirely accurate at the time of publishing, this is actually a pretty decent visualization of how many actions must be taken for each reporting cycle. No wonder this can actually take a decent amount of time while attempting to manage a team closing.
 
-
-
+Check it out here! [github](https://github.com/frymatic/Python-Hackathon)
 
 [Home](index.md)
