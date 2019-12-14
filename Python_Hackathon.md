@@ -18,7 +18,10 @@ I chose to work alone on this project only with respect to the scope of this cla
 
 For the GUI automation project I turned in a stripped down version of reporting within Toast POS. This version is much closer to what will actually be implemented at Jack's as a cost saving measure.
 
+Using Selenium, XPATHs make it easy to locate data within a webpage. I did my best to figure out the exact locations of all of the data necessary to properly populate a daily report for Jack's. Presently, I'm only able to get a few values out reliably. I suspect this is due to some sort of dynamic rendering reports, possibly in AJAX (or something like it.) Here's a list of XPATHS:
 
+![xpaths](https://i.imgur.com/Zj2bXX9.png)
+Though they aren't entirely accurate at the time of publishing, this is actually a pretty decent visualization of how many actions must be taken for each reporting cycle. No wonder this can actually take a decent amount of time while attempting to manage a team closing.
 
 
 
