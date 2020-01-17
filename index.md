@@ -8,7 +8,7 @@ My name is William "Woody" Hooten.
 
 ![headshot](https://i.imgur.com/MaRaAhW.png) 
 
-I'm working on being a full stack developer, Python being my core focus. 
+I'm work as a full stack developer, Python being my core focus. 
 ![stack](https://i.imgur.com/YsX0q6x.png)
 This is the stack at [American River Gold](www.americanrivergold.com) where I am contributing as a Software Engineer.
 
@@ -22,8 +22,10 @@ You can find me all over the internet...
 - [YouTube](https://www.youtube.com/channel/UCS03esOnKDT7d-HMG_HFKnQ)
 - [WordPress](https://woodhoot.wordpress.com/)
 
+
 Here's a living list of things I've built and am working on...
-# Portfolio
+# Portfolio:
+
 - [Python](python.md)
 - [Mobile Development](mobile.md) - Corona SDK for Android/iOS cross-platform publishing
 
