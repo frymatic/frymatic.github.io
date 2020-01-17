@@ -21,9 +21,17 @@ You can make simple games like this pretty easily:
 Here's a code snippet (sorry for the screenshot, Markdown doesn't handle formatting Lua as well as Python) that I think demonstrated a tricky bit of trigonometry and ultimately memory management when drawing the bullets fired by tapping on the screen.
 ![Code Snippet](https://i.imgur.com/zABJnkI.png)
 
-What's interesting about this code is how the animation is defined using the [transition.to() function of the Corona SDK](https://docs.coronalabs.com/api/library/transition/to.html). A transition moves an object from a starting point to an end point over a set period of time. Where the object should be placed on screen is calculated by the function, saving the developer the effort of manually drawing each frame of an object's movement. If you want all bullets that miss targets to fly off screen before disappearing, but you are determing where to aim the gun based on a tap that can only generated within the bounds of the screen (otherwise the player wouldn't be touching the screen).
+What's interesting about this code is how the animation is defined using the [transition.to() function of the Corona SDK](https://docs.coronalabs.com/api/library/transition/to.html). A transition moves an object from a starting point to an end point over a set period of time. Where the object should be placed on screen is calculated by the function, saving the developer the effort of manually drawing each frame of an object's movement. If you want all bullets that miss targets to fly off screen before disappearing, but you are determing where to aim the gun based on a tap that can only generated within the bounds of the screen (otherwise the player wouldn't be touching the screen), then you are forced to calculate an end point for the transition that is off the map along the same trajectory. Similarly, you must also determine how long it should take the bullet to travel to that end point, which should be longer than the time it would take for the bullet to fly to the point where the screen was tapped to fire the bullet.
+
+# Projects
+- Target Shooter (discussed above)
+- Fly Game (Flappy Bird clone)
+Used [Sprite Objects in the Corona SDK](https://docs.coronalabs.com/api/type/SpriteObject/index.html) to animate my flying guy to flap every time the screen was tapped. He also animates while idling at the beginning of the game.
+
+![Fly GIF](https://i.imgur.com/MaNiQIc.gif)
+- Cow Pile
+Utilized the [Box2D](https://box2d.org/) physics engine to make a game akin to [Cow Clicker](http://www.cowclicker.com/) as a final project for a mobile development class at Sierra College.
+
+![Cow Pile](https://i.imgur.com/8J4GcL5.png)
 
 
-- [Fundamentals of Programming in Python](Fundamentals_of_Programming_in_Python.md)
-- [Internet of Things (IoT)](iot.md)
-- [Python Hackathon](Python_Hackathon.md)
