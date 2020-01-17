@@ -26,6 +26,7 @@ Here's a living list of things I've built and am working on...
 # Portfolio
 - [Python](python.md)
 - [Mobile Development](mobile.md) - Corona SDK for Android/iOS cross-platform publishing
+
 <!-- For anyone paying attention:
 - ![Maestro](https://i.imgur.com/eUcUftE.png)ƒrymatic
 	- [SoundCloud](https://soundcloud.com/mofrymatic)
