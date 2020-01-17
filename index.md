@@ -19,7 +19,7 @@ You can find me all over the internet...
 - [GitHub](https://www.github.com/frymatic)
 - [Facebook](https://www.facebook.com/WoodHoot)
 - [Twitter](https://www.twitter.com/WoodHoot)
-- [YouTube](https://www.youtube.com/stuff)
+- [YouTube](https://www.youtube.com/channel/UCS03esOnKDT7d-HMG_HFKnQ)
 - [WordPress](https://woodhoot.wordpress.com/)
 
 Here's a living list of things I've built and am working on...
