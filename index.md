@@ -25,7 +25,8 @@ You can find me all over the internet...
 Here's a living list of things I've built and am working on...
 # Portfolio
 - [Python](python.md)
-- [Mobile Development - Corona SDK for Android/iOS cross-platform publishing](mobile.md)
+- [Mobile Development](mobile.md) - Corona SDK for Android/iOS cross-platform publishing
+<!-- For anyone paying attention:
 - ![Maestro](https://i.imgur.com/eUcUftE.png)ƒrymatic
 	- [SoundCloud](https://soundcloud.com/mofrymatic)
 	- [Twitter](https://twitter.com/mofrymatic)
@@ -34,3 +35,4 @@ Here's a living list of things I've built and am working on...
 	- [Slack](https://brazen5tudios.slack.com/)
 	- [MAR5](https://www.facebook.com/events/251726375236944/)
 	- [RED EYE](https://www.facebook.com/groups/REDEYEGAME/)
+-->
