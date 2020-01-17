@@ -25,15 +25,15 @@ You can find me all over the internet...
 Here's a living list of things I've built and am working on...
 # Portfolio
 - [Python](python.md)
--- [SacPy](https://www.meetup.com/sacramentopython)
--- [Sierra College - IT075 - Python for Many Uses](sierra.md)
+	- [SacPy](https://www.meetup.com/sacramentopython)
+	- [Sierra College - IT075 - Python for Many Uses](sierra.md)
 - [Mobile Development - Corona SDK for Android/iOS cross-platform publishing](mobile.md)
 
-- [frymatic]
--- [SoundCloud](https://soundcloud.com/mofrymatic)
--- [Twitter](https://twitter.com/mofrymatic)
+- ![Maestro](https://i.imgur.com/eUcUftE.png)[frymatic]
+	- [SoundCloud](https://soundcloud.com/mofrymatic)
+	- [Twitter](https://twitter.com/mofrymatic)
 - [ßrazen 5tudios](https://twitter.com/Brazen5tudios)
--- [Slack](https://brazen5tudios.slack.com/)
--- [MAR5](https://www.facebook.com/events/251726375236944/)
--- [RED EYE](https://www.facebook.com/groups/REDEYEGAME/)
--- [Grace Project](https://www.facebook.com/groups/1267303460022897/)
+	- [Slack](https://brazen5tudios.slack.com/)
+	- [MAR5](https://www.facebook.com/events/251726375236944/)
+	- [RED EYE](https://www.facebook.com/groups/REDEYEGAME/)
+	- [Grace Project](https://www.facebook.com/groups/1267303460022897/)
