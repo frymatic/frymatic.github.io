@@ -29,8 +29,10 @@ Here's a living list of things I've built and am working on...
 - [Python](python.md)
 - [Mobile Development](mobile.md) - Corona SDK for Android/iOS cross-platform publishing
 
+![Maestro](https://i.imgur.com/eUcUftE.png)
+
 <!-- For anyone paying attention:
-- ![Maestro](https://i.imgur.com/eUcUftE.png)ƒrymatic
+- ƒrymatic
 	- [SoundCloud](https://soundcloud.com/mofrymatic)
 	- [Twitter](https://twitter.com/mofrymatic)
 	- [TensorFlow Community](https://www.twitter.com/TensorFlo)
