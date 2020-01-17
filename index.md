@@ -15,11 +15,11 @@ This is the stack at [American River Gold](www.americanrivergold.com) where I am
 You can find me all over the internet...
 # Social Media:
 
-- [LinkedIn](www.linkedin.com/in/williamphooten)
-- [GitHub](www.github.com/frymatic)
-- [Facebook](www.facebook.com/WoodHoot)
-- [Twitter](www.facebook.com/WoodHoot)
-- [YouTube](www.youtube.com/stuff)
+- [LinkedIn](https://www.linkedin.com/in/williamphooten)
+- [GitHub](https://www.github.com/frymatic)
+- [Facebook](https://www.facebook.com/WoodHoot)
+- [Twitter](https://www.facebook.com/WoodHoot)
+- [YouTube](https://www.youtube.com/stuff)
 - [WordPress](https://woodhoot.wordpress.com/)
 
 Here's a living list of things I've built and am working on...
