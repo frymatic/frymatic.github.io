@@ -18,7 +18,7 @@ You can find me all over the internet...
 - [LinkedIn](https://www.linkedin.com/in/williamphooten)
 - [GitHub](https://www.github.com/frymatic)
 - [Facebook](https://www.facebook.com/WoodHoot)
-- [Twitter](https://www.facebook.com/WoodHoot)
+- [Twitter](https://www.twitter.com/WoodHoot)
 - [YouTube](https://www.youtube.com/stuff)
 - [WordPress](https://woodhoot.wordpress.com/)
 
