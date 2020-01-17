@@ -29,7 +29,7 @@ Here's a living list of things I've built and am working on...
 	- [Sierra College - IT075 - Python for Many Uses](sierra.md)
 - [Mobile Development - Corona SDK for Android/iOS cross-platform publishing](mobile.md)
 
-- ![Maestro](https://i.imgur.com/eUcUftE.png)[frymatic](https://www.frymatic.com)
+- ![Maestro](https://i.imgur.com/eUcUftE.png)ƒrymatic
 	- [SoundCloud](https://soundcloud.com/mofrymatic)
 	- [Twitter](https://twitter.com/mofrymatic)
 - [ßrazen 5tudios](https://twitter.com/Brazen5tudios)
