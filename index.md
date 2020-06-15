@@ -10,7 +10,7 @@ My name is William "Woody" Hooten.
 
 I'm working as a full stack developer with Python being my core focus. 
 ![stack](https://i.imgur.com/YsX0q6x.png)
-This is the stack at [American River Gold](www.americanrivergold.com) where I am contributing as a Software Engineer.
+This is the stack at [American River Gold](https://www.americanrivergold.com) where I am contributing as a Software Engineer.
 
 You can find me all over the internet...
 # Social Media:
