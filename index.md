@@ -15,7 +15,7 @@ This is the stack at [American River Gold](http://www.americanrivergold.com) whe
 You can find me all over the internet...
 # Social Media:
 
-- [LinkedIn](https://www.linkedin.com/in/williamphooten)
+- [LinkedIn](https://www.linkedin.com/in/woodyhooten/)
 - [GitHub](https://www.github.com/frymatic)
 - [Facebook](https://www.facebook.com/WoodHoot)
 - [Twitter](https://www.twitter.com/WoodHoot)
