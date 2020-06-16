@@ -6,7 +6,7 @@
 
 My name is William "Woody" Hooten.
 
-![headshot](https://i.imgur.com/MaRaAhW.png) 
+<!--![headshot](https://i.imgur.com/MaRaAhW.png) -->
 
 I'm working as a full stack developer with Python being my core focus. 
 ![stack](https://i.imgur.com/YsX0q6x.png)
