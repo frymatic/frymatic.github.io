@@ -21,6 +21,6 @@ I worked at a place called Lolapps. They made apps on the Facebook Application P
 # Sierra College
 [Fall 2019, IT075 - Python for Many Uses](python.md)
 
-# SacPy
+# [SacPy](https://www.meetup.com/sacramentopython/events)
 ![SacPy Logo](https://i.imgur.com/i5oh1OU.png)
 
