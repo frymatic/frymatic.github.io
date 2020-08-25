@@ -6,7 +6,7 @@
 
 My name is William "Woody" Hooten.
 
-<!--![headshot](https://i.imgur.com/MaRaAhW.png) -->
+![headshot](https://i.imgur.com/MaRaAhW.png)
 
 I'm working as a full stack developer with Python being my core focus. 
 ![stack](https://i.imgur.com/YsX0q6x.png)
@@ -22,12 +22,19 @@ You can find me all over the internet...
 - [YouTube](https://www.youtube.com/channel/UCS03esOnKDT7d-HMG_HFKnQ)
 - [WordPress](https://woodhoot.wordpress.com/)
 
+# In the Media:
+- [Fast Company](https://www.fastcompany.com/3026301/ex-zynga-and-google-engineers-help-you-book-a-foreign-medical-procedure)
+- [Vox](https://www.vox.com/2014/3/20/11624740/go-west-young-men
+)
 
-Here's a living list of things I've built and am working on...
+
+
 # Portfolio:
-
 - [Python](python.md)
 - [Mobile Development](mobile.md) - Corona SDK for Android/iOS cross-platform publishing
+
+
+
 
 ![Maestro](https://i.imgur.com/eUcUftE.png)
 
