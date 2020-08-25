@@ -21,6 +21,13 @@ I worked at a place called Lolapps. They made apps on the Facebook Application P
 # Sierra College
 [Fall 2019, IT075 - Python for Many Uses](python.md)
 
-# [SacPy](https://www.meetup.com/sacramentopython/events)
+# [SacPy]
 ![SacPy Logo](https://i.imgur.com/i5oh1OU.png)
+- [Events]((https://www.meetup.com/sacramentopython/events)
+- [Twitter](https://twitter.com/Sac_Py)
+- [FB Page](https://www.facebook.com/SacPyMeetup/)
+- [FB Group](https://www.facebook.com/groups/sacpy/)
+- [subreddit](https://www.reddit.com/r/SacPy)
+- [Slack](https://sac-tech.slack.com/) #sacpy channel
+- [GitLab](https://gitlab.com/sacpy/sacpy.gitlab.io)
 
