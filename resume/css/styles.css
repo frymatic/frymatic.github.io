@@ -29,6 +29,7 @@
   --success: #28a745;
   --info: #17a2b8;
   --warning: #ffc107;
+
   --danger: #dc3545;
   --light: #f8f9fa;
   --dark: #343a40;
@@ -9799,11 +9800,11 @@ button.bg-dark:focus {
 }
 
 .text-primary {
-  color: #bd5d38 !important;
+  color: #030063 !important;
 }
 
 a.text-primary:hover, a.text-primary:focus {
-  color: #824027 !important;
+  color: #0300B4 !important;
 }
 
 .text-secondary {
