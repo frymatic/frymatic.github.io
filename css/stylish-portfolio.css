@@ -217,6 +217,7 @@ h6 {
   background-position: center center;
   background-repeat: no-repeat;
   background-size: cover;
+
 }
 
 .callout h2 {
@@ -224,6 +225,7 @@ h6 {
   font-weight: 700;
   display: block;
   max-width: 30rem;
+  text-shadow: 3px 3px 3px #FFFFFF;
 }
 
 .portfolio-item {
