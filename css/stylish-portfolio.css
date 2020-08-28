@@ -41,10 +41,6 @@ h6 {
   font-weight: 700;
 }
 
-h2 {
-  text-shadow: 3px 3px 3px #000000;
-}
-
 .text-faded {
   color: rgba(255, 255, 255, 0.7);
 }
@@ -101,7 +97,6 @@ h2 {
   background-position: center center;
   background-repeat: no-repeat;
   background-size: cover;
-  text-shadow: 3px 3px 3px #000000;
 }
 
 .masthead h1 {
@@ -237,6 +232,7 @@ h2 {
   overflow: hidden;
   max-width: 530px;
   margin: auto auto 1rem;
+  text-shadow: 3px 3px 3px #000000;
 }
 
 .portfolio-item .caption {
