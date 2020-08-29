@@ -103,11 +103,11 @@ h6 {
   font-size: 4rem;
   margin: 0;
   padding: 0;
-  text-shadow: 3px 3px 2px #ECE1BD;
+  text-shadow: 0px 0px 9px #ECE1BD;
 }
 
 .masthead h3 {
-  text-shadow: 2px 2px 2px #ECE1BD;
+  text-shadow: 0px 0px 6px #ECE1BD;
 }
 
 @media (min-width: 992px) {
