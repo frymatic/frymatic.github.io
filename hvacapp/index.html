@@ -16,15 +16,22 @@
       justify-content: center;
       transition: background-color 300ms ease;
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      overflow: hidden; /* Prevent body scroll when video is open */
     }
 
-    /* Image container: keeps image centered and responsive */
+    /* --- Image Container --- */
     .img-wrap {
       max-width: 90%;
       max-height: 90%;
       display: flex;
       align-items: center;
       justify-content: center;
+      cursor: pointer; /* Indicate it's clickable */
+      transition: transform 300ms ease;
+      z-index: 1; /* Keep it above the body's background color transition */
+    }
+    .img-wrap:hover {
+        transform: scale(1.03); /* Subtle hover effect */
     }
 
     img.centered-png {
@@ -33,8 +40,8 @@
       max-height: 100%;
       width: auto;
       height: auto;
-      box-shadow: 0 6px 24px rgba(0,0,0,0.08); /* subtle lift */
-      border-radius: 8px; /* optional */
+      box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+      border-radius: 8px;
     }
 
     /* Small helper for users without JS */
@@ -45,12 +52,94 @@
       font-size: 13px;
       color: rgba(0,0,0,0.6);
     }
+    
+    /* --- Video Overlay Styles --- */
+    #video-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0); /* Start transparent */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0; /* Start hidden */
+      visibility: hidden; /* Ensure it's not interactive until visible */
+      transition: opacity 500ms ease, background-color 500ms ease, visibility 0s 500ms;
+      z-index: 1000;
+      cursor: pointer; /* To make the gutter clickable */
+    }
+
+    #video-overlay.active {
+      opacity: 1;
+      background-color: rgba(0, 0, 0, 0.95); /* Fade to black */
+      visibility: visible;
+      transition: opacity 500ms ease, background-color 500ms ease, visibility 0s 0s;
+    }
+
+    /* Video Container for 16:9 Aspect Ratio */
+    .video-container {
+      position: relative;
+      width: 90%; /* Max width on screen */
+      max-width: 900px; /* Max size for video */
+      padding-bottom: 56.25%; /* 16:9 Aspect Ratio (9/16 = 0.5625) */
+      height: 0;
+      z-index: 1001; /* Above the overlay background */
+      pointer-events: none; /* Ignore clicks on the container itself */
+    }
+
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      box-shadow: 0 0 30px rgba(0,0,0,0.5);
+      pointer-events: auto; /* Re-enable clicks inside the iframe */
+    }
+
+    /* Close Button */
+    .close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      color: rgba(255, 255, 255, 0.7); /* Mostly transparent white 'x' */
+      font-size: 30px;
+      font-weight: 300;
+      cursor: pointer;
+      line-height: 1;
+      padding: 10px;
+      transition: color 200ms ease;
+      z-index: 1002;
+      pointer-events: auto; /* Ensure it's clickable */
+    }
+
+    .close-btn:hover {
+      color: #fff;
+    }
   </style>
 </head>
 <body>
-  <div class="img-wrap" role="img" aria-label="Centered PNG">
-    <!-- change src to your file name if needed -->
-    <img class="centered-png" src="HVACapp-logo.png" alt="Centered image" />
+  <a id="image-link" href="#" aria-label="Play video demonstration">
+    <div class="img-wrap" role="img" aria-label="Centered PNG">
+      <img class="centered-png" src="HVACapp-logo.png" alt="Centered image" />
+    </div>
+  </a>
+
+  <div id="video-overlay">
+    <span class="close-btn" aria-label="Close video player">&times;</span>
+    <div class="video-container">
+      <iframe 
+        id="youtube-player"
+        width="560" 
+        height="315" 
+        src="https://www.youtube.com/embed/p0yu7w8j1Jg?autoplay=1&rel=0&enablejsapi=1" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen>
+      </iframe>
+    </div>
   </div>
 
   <noscript>
@@ -58,15 +147,73 @@
   </noscript>
 
   <script>
-    // Produce a random light background color using HSL.
-    // Lightness range: 86% - 98% (keeps it visibly light)
-    // Saturation range: 20% - 45% (keeps colors soft)
+    // YouTube Video ID and Element references
+    const YOUTUBE_VIDEO_ID = 'p0yu7w8j1Jg';
+    const body = document.body;
+    const imageLink = document.getElementById('image-link');
+    const videoOverlay = document.getElementById('video-overlay');
+    const closeBtn = document.querySelector('.close-btn');
+    const youTubePlayer = document.getElementById('youtube-player');
+    const youtubeBaseSrc = `https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?autoplay=1&rel=0&enablejsapi=1`;
+
+    // 1. Random Light Background Generator
     (function setRandomLightBg() {
-      const h = Math.floor(Math.random() * 360); // hue
-      const s = Math.floor(20 + Math.random() * 25); // saturation 20-45
-      const l = Math.floor(86 + Math.random() * 12); // lightness 86-98
-      document.body.style.backgroundColor = `hsl(${h} ${s}% ${l}%)`;
+      const h = Math.floor(Math.random() * 360);
+      const s = Math.floor(20 + Math.random() * 25);
+      const l = Math.floor(86 + Math.random() * 12);
+      body.style.backgroundColor = `hsl(${h} ${s}% ${l}%)`;
     })();
+
+    // 2. Overlay Logic
+    
+    // Function to stop the video when closing the overlay
+    function stopVideo() {
+        // Stop the video by setting its src to an empty string or a non-autoplay version
+        // Using replace() on the iframe source is the most reliable way to stop playback.
+        youTubePlayer.src = '';
+    }
+
+    function openOverlay(e) {
+      e.preventDefault(); // Prevent default link behavior
+      
+      // Load the video with autoplay and fade to black
+      youTubePlayer.src = youtubeBaseSrc;
+      
+      // Hide the body scrollbar
+      body.style.overflow = 'hidden';
+
+      // Activate the overlay (fades to black)
+      videoOverlay.classList.add('active');
+    }
+
+    function closeOverlay() {
+      // Deactivate the overlay (fades back)
+      videoOverlay.classList.remove('active');
+      
+      // Restore the body scrollbar
+      body.style.overflow = 'auto';
+
+      // Stop the video playback
+      stopVideo();
+    }
+
+    // Event Listeners
+    
+    // 1. Click on the image to open the video
+    imageLink.addEventListener('click', openOverlay);
+
+    // 2. Click on the close button or the overlay gutter to close
+    closeBtn.addEventListener('click', closeOverlay);
+    
+    // Click on the overlay background (but not the video itself)
+    videoOverlay.addEventListener('click', function(e) {
+        // Only close if the click target is the overlay background or the close button
+        // The iframe and video-container have their pointer-events managed via CSS
+        if (e.target === videoOverlay) {
+            closeOverlay();
+        }
+    });
+
   </script>
 </body>
 </html>
