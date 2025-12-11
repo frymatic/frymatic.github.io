@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HVAC Permit Automation - Automate Your California HVAC Permits</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #F39C12;
+            --primary-dark: #E67E22;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #111;
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem 2rem;
+            z-index: 1000;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #6b7280;
+            text-decoration: none;
+        }
+
+        .cta-btn {
+            background: var(--primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .cta-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .hero {
+            margin-top: 80px;
+            padding: 6rem 2rem;
+            background: linear-gradient(135deg, #fff 0%, #fef5e7 100%);
+        }
+
+        .hero-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+
+        .gradient {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .trust-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(243, 156, 18, 0.1);
+            color: var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+
+        .benefits {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .benefit {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .mock-ui {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+
+        .status {
+            background: rgba(243, 156, 18, 0.1);
+            color: var(--primary);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        section {
+            padding: 5rem 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #6b7280;
+            margin-bottom: 4rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            background: #f9fafb;
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        .icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .testimonial {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .stars {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .pricing-card {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 2.5rem;
+            position: relative;
+        }
+
+        .popular {
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .price {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        footer {
+            background: #111;
+            color: white;
+            padding: 3rem 2rem;
+        }
+
+        .footer-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 3rem;
+        }
+
+        @media (max-width: 968px) {
+            .hero-grid, .footer-grid {
+                grid-template-columns: 1fr;
+            }
+            .nav-links {
+                display: none;
+            }
+            .benefits {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-content">
+            <div class="logo">HVAC Permit Automation</div>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#testimonials">Testimonials</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+            </ul>
+            <a href="#signup" class="cta-btn">Get Early Access</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-grid">
+            <div>
+                <div class="trust-badge">
+                    ✓ Trusted by 500+ California Contractors
+                </div>
+                <h1>Automate Your <span class="gradient">HVAC Permits</span>. Focus on What You Do Best.</h1>
+                <p style="font-size: 1.3rem; color: #6b7280; margin-bottom: 2rem;">
+                    Join 500+ California contractors who've eliminated permit delays and reduced administrative overhead by <strong>75%</strong>
+                </p>
+                
+                <div class="benefits">
+                    <div class="benefit">✓ Weeks to Hours</div>
+                    <div class="benefit">✓ 99.7% Approval</div>
+                    <div class="benefit">✓ 30% More Projects</div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <a href="#signup" class="cta-btn">Get Early Access →</a>
+                    <a href="#features" style="padding: 0.75rem 1.5rem; border: 2px solid #e5e7eb; border-radius: 8px; text-decoration: none; color: #111; font-weight: 600;">Learn More</a>
+                </div>
+            </div>
+
+            <div class="mock-ui">
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem;">
+                    <div style="width: 12px; height: 12px; border-radius: 50%; background: #ff5f56;"></div>
+                    <div style="width: 12px; height: 12px; border-radius: 50%; background: #ffbd2e;"></div>
+                    <div style="width: 12px; height: 12px; border-radius: 50%; background: #27c93f;"></div>
+                </div>
+                <div style="height: 8px; background: #f3f4f6; border-radius: 4px; width: 70%; margin-bottom: 1rem;"></div>
+                <div style="height: 8px; background: #f3f4f6; border-radius: 4px; width: 50%; margin-bottom: 1.5rem;"></div>
+                <div class="status">PERMIT APPROVED ✓</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem; text-align: center;">
+                    <div>
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--primary);">2.5hrs</div>
+                        <div style="font-size: 0.85rem; color: #6b7280;">Avg Processing</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--primary);">99.7%</div>
+                        <div style="font-size: 0.85rem; color: #6b7280;">Approval Rate</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" style="background: #f9fafb;">
+        <div class="container">
+            <h2>Everything You Need to <span class="gradient">Scale Your Business</span></h2>
+            <p class="subtitle">Comprehensive platform with tools and integrations for California HVAC contractors</p>
+
+            <div class="grid">
+                <div class="card">
+                    <div class="icon">📋</div>
+                    <h3>Automated Applications</h3>
+                    <p style="color: #6b7280;">AI-powered form completion and submission to jurisdiction portals including Accela.</p>
+                </div>
+
+                <div class="card">
+                    <div class="icon">🔔</div>
+                    <h3>Real-time Tracking</h3>
+                    <p style="color: #6b7280;">Instant notifications and detailed status updates from submission to approval.</p>
+                </div>
+
+                <div class="card">
+                    <div class="icon">🛡️</div>
+                    <h3>Code Compliance</h3>
+                    <p style="color: #6b7280;">Automated verification against local building codes before submission.</p>
+                </div>
+
+                <div class="card">
+                    <div class="icon">🔗</div>
+                    <h3>Portal Integration</h3>
+                    <p style="color: #6b7280;">Seamless integration with Accela and California jurisdiction portals.</p>
+                </div>
+
+                <div class="card">
+                    <div class="icon">📱</div>
+                    <h3>Mobile-First</h3>
+                    <p style="color: #6b7280;">Submit permits and manage projects from anywhere with our mobile app.</p>
+                </div>
+
+                <div class="card">
+                    <div class="icon">⚡</div>
+                    <h3>HERS Integration</h3>
+                    <p style="color: #6b7280;">Direct integration with HERS raters and CHEERS.org for energy compliance.</p>
+                </div>
+
+                <div class="card">
+                    <div class="icon">📅</div>
+                    <h3>Inspection Scheduling</h3>
+                    <p style="color: #6b7280;">Automated inspection scheduling and reminders to keep projects on track.</p>
+                </div>
+
+                <div class="card">
+                    <div class="icon">📊</div>
+                    <h3>Analytics</h3>
+                    <p style="color: #6b7280;">Track success rates, processing times, and improvement opportunities.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="testimonials">
+        <div class="container">
+            <h2>Trusted by California's <span class="gradient">Leading Contractors</span></h2>
+            <p class="subtitle">Join hundreds who've transformed their permit process</p>
+
+            <div class="grid">
+                <div class="testimonial">
+                    <div class="stars">★★★★★</div>
+                    <p style="font-style: italic; color: #6b7280; margin-bottom: 1.5rem;">"This platform has completely transformed our business. We used to spend 2-3 days per week on permit paperwork. Now it takes minutes."</p>
+                    <strong>Mike Rodriguez</strong><br>
+                    <small style="color: #6b7280;">Rodriguez HVAC, Los Angeles</small>
+                </div>
+
+                <div class="testimonial">
+                    <div class="stars">★★★★★</div>
+                    <p style="font-style: italic; color: #6b7280; margin-bottom: 1.5rem;">"The integration with CHEERS.org and HERS raters is a game-changer. Our approval rate went from 60% to 99%."</p>
+                    <strong>Sarah Chen</strong><br>
+                    <small style="color: #6b7280;">Bay Area Climate Control, SF</small>
+                </div>
+
+                <div class="testimonial">
+                    <div class="stars">★★★★★</div>
+                    <p style="font-style: italic; color: #6b7280; margin-bottom: 1.5rem;">"We've cut permit processing from 3 weeks to 2 hours. That's time we can spend growing our business."</p>
+                    <strong>David Thompson</strong><br>
+                    <small style="color: #6b7280;">Thompson Heating & Air, San Diego</small>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="pricing" style="background: #f9fafb;">
+        <div class="container">
+            <h2>Simple, Transparent <span class="gradient">Pricing</span></h2>
+            <p class="subtitle">All plans include core automation features with no hidden fees</p>
+            <div style="text-align: center;">
+                <div class="trust-badge">⭐ Early Access: 50% Off First 6 Months</div>
+            </div>
+
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <h3>Starter</h3>
+                    <div class="price">$99<span style="font-size: 1rem; color: #6b7280;">/month</span></div>
+                    <p style="color: #6b7280; margin: 1rem 0;">Perfect for small contractors</p>
+                    <div style="background: rgba(243, 156, 18, 0.1); color: var(--primary); padding: 0.5rem; border-radius: 8px; text-align: center; margin-bottom: 1.5rem;">Up to 10 permits/month</div>
+                    <ul style="list-style: none; margin: 2rem 0;">
+                        <li style="padding: 0.5rem 0;">✓ Automated applications</li>
+                        <li style="padding: 0.5rem 0;">✓ Real-time tracking</li>
+                        <li style="padding: 0.5rem 0;">✓ Mobile app access</li>
+                        <li style="padding: 0.5rem 0;">✓ Email support</li>
+                    </ul>
+                    <a href="#signup" class="cta-btn" style="display: block; text-align: center;">Get Started</a>
+                </div>
+
+                <div class="pricing-card popular">
+                    <div class="popular-badge">⚡ Most Popular</div>
+                    <h3>Professional</h3>
+                    <div class="price">$199<span style="font-size: 1rem; color: #6b7280;">/month</span></div>
+                    <p style="color: #6b7280; margin: 1rem 0;">Ideal for growing businesses</p>
+                    <div style="background: rgba(243, 156, 18, 0.1); color: var(--primary); padding: 0.5rem; border-radius: 8px; text-align: center; margin-bottom: 1.5rem;">Up to 50 permits/month</div>
+                    <ul style="list-style: none; margin: 2rem 0;">
+                        <li style="padding: 0.5rem 0;">✓ Everything in Starter</li>
+                        <li style="padding: 0.5rem 0;">✓ CHEERS.org integration</li>
+                        <li style="padding: 0.5rem 0;">✓ Advanced analytics</li>
+                        <li style="padding: 0.5rem 0;">✓ Priority support</li>
+                        <li style="padding: 0.5rem 0;">✓ Custom integrations</li>
+                    </ul>
+                    <a href="#signup" class="cta-btn" style="display: block; text-align: center;">Get Started</a>
+                </div>
+
+                <div class="pricing-card">
+                    <h3>Enterprise</h3>
+                    <div class="price" style="font-size: 2.5rem;">Custom</div>
+                    <p style="color: #6b7280; margin: 1rem 0;">For multi-location businesses</p>
+                    <div style="background: rgba(243, 156, 18, 0.1); color: var(--primary); padding: 0.5rem; border-radius: 8px; text-align: center; margin-bottom: 1.5rem;">50+ permits/month</div>
+                    <ul style="list-style: none; margin: 2rem 0;">
+                        <li style="padding: 0.5rem 0;">✓ Everything in Pro</li>
+                        <li style="padding: 0.5rem 0;">✓ Account manager</li>
+                        <li style="padding: 0.5rem 0;">✓ White-label options</li>
+                        <li style="padding: 0.5rem 0;">✓ API access</li>
+                        <li style="padding: 0.5rem 0;">✓ SLA guarantees</li>
+                    </ul>
+                    <a href="#signup" class="cta-btn" style="display: block; text-align: center;">Contact Sales</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="signup">
+        <div class="container" style="max-width: 600px;">
+            <h2>Get <span class="gradient">Early Access</span></h2>
+            <p class="subtitle">Limited spots available for California contractors</p>
+
+            <div class="card" style="background: white;">
+                <form style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <input type="text" placeholder="First Name*" required style="padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+                        <input type="text" placeholder="Last Name*" required style="padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+                    </div>
+                    <input type="email" placeholder="Email*" required style="padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+                    <input type="tel" placeholder="Phone*" required style="padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+                    <input type="text" placeholder="Company Name*" required style="padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+                    <input type="text" placeholder="License Number*" required style="padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+                    <button type="submit" class="cta-btn" style="padding: 1rem; font-size: 1.1rem; border: none; cursor: pointer; width: 100%;">Get Early Access</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-grid">
+            <div>
+                <div class="logo" style="color: var(--primary); margin-bottom: 1rem;">HVAC Permit Automation</div>
+                <p style="color: #9ca3af;">Transforming permit processing for California HVAC contractors</p>
+            </div>
+            <div>
+                <h4 style="margin-bottom: 1rem;">Platform</h4>
+                <ul style="list-style: none;">
+                    <li style="margin-bottom: 0.5rem;"><a href="#features" style="color: #9ca3af; text-decoration: none;">Features</a></li>
+                    <li style="margin-bottom: 0.5rem;"><a href="#pricing" style="color: #9ca3af; text-decoration: none;">Pricing</a></li>
+                    <li style="margin-bottom: 0.5rem;"><a href="#" style="color: #9ca3af; text-decoration: none;">Integrations</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 style="margin-bottom: 1rem;">Support</h4>
+                <ul style="list-style: none;">
+                    <li style="margin-bottom: 0.5rem;"><a href="#" style="color: #9ca3af; text-decoration: none;">Help Center</a></li>
+                    <li style="margin-bottom: 0.5rem;"><a href="#" style="color: #9ca3af; text-decoration: none;">Contact</a></li>
+                    <li style="margin-bottom: 0.5rem;"><a href="#" style="color: #9ca3af; text-decoration: none;">Privacy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div style="text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #374151; color: #9ca3af;">
+            © 2024 HVAC Permit Automation. All rights reserved.
+        </div>
+    </footer>
+</body>
+</html>
