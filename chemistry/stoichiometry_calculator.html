@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Stoichiometry Calculator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: #0f1117; font-family: 'IBM Plex Sans', sans-serif; }
+    #root { height: 100vh; }
+    /* Streamlit overrides injected via the app CSS */
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/x-python" id="app-code">
+import streamlit as st
+import numpy as np
+from collections import defaultdict
+from math import gcd
+from functools import reduce
+from fractions import Fraction
+
+# ─── PERIODIC TABLE ──────────────────────────────────────────────────────────
+ELEMENTS = {
+    'H':1.008,'He':4.003,'Li':6.941,'Be':9.012,'B':10.811,'C':12.011,
+    'N':14.007,'O':15.999,'F':18.998,'Ne':20.180,'Na':22.990,'Mg':24.305,
+    'Al':26.982,'Si':28.086,'P':30.974,'S':32.065,'Cl':35.453,'Ar':39.948,
+    'K':39.098,'Ca':40.078,'Sc':44.956,'Ti':47.867,'V':50.942,'Cr':51.996,
+    'Mn':54.938,'Fe':55.845,'Co':58.933,'Ni':58.693,'Cu':63.546,'Zn':65.38,
+    'Ga':69.723,'Ge':72.630,'As':74.922,'Se':78.971,'Br':79.904,'Kr':83.798,
+    'Rb':85.468,'Sr':87.62,'Y':88.906,'Zr':91.224,'Nb':92.906,'Mo':95.95,
+    'Ag':107.868,'Cd':112.414,'In':114.818,'Sn':118.710,'Sb':121.760,
+    'Te':127.60,'I':126.904,'Xe':131.293,'Cs':132.905,'Ba':137.327,
+    'La':138.905,'Hf':178.49,'Ta':180.948,'W':183.84,'Re':186.207,
+    'Os':190.23,'Ir':192.217,'Pt':195.084,'Au':196.967,'Hg':200.592,
+    'Tl':204.38,'Pb':207.2,'Bi':208.980,'Th':232.038,'U':238.029,
+}
+
+ELEMENT_NAMES = {
+    'H':'hydrogen','He':'helium','Li':'lithium','Be':'beryllium','B':'boron',
+    'C':'carbon','N':'nitrogen','O':'oxygen','F':'fluorine','Ne':'neon',
+    'Na':'sodium','Mg':'magnesium','Al':'aluminum','Si':'silicon','P':'phosphorus',
+    'S':'sulfur','Cl':'chlorine','Ar':'argon','K':'potassium','Ca':'calcium',
+    'Fe':'iron','Cu':'copper','Zn':'zinc','Br':'bromine','I':'iodine',
+    'Ag':'silver','Au':'gold','Hg':'mercury','Pb':'lead','Pt':'platinum',
+    'Cr':'chromium','Mn':'manganese','Co':'cobalt','Ni':'nickel',
+    'Sn':'tin','Ba':'barium','W':'tungsten','Ti':'titanium','V':'vanadium',
+    'Al':'aluminum','Bi':'bismuth','Cs':'cesium',
+}
+
+COMMON_COMPOUNDS = {
+    'H2O':'water','CO2':'carbon dioxide','NaCl':'sodium chloride',
+    'HCl':'hydrochloric acid','H2SO4':'sulfuric acid','NaOH':'sodium hydroxide',
+    'NH3':'ammonia','CH4':'methane','C2H6':'ethane','C3H8':'propane',
+    'C4H10':'butane','C6H6':'benzene','C6H12O6':'glucose',
+    'AlCl3':'aluminum chloride','CaCO3':'calcium carbonate',
+    'Fe2O3':'iron(III) oxide','Fe3O4':'iron(II,III) oxide',
+    'MgO':'magnesium oxide','CaO':'calcium oxide','ZnO':'zinc oxide',
+    'SO2':'sulfur dioxide','SO3':'sulfur trioxide',
+    'NO':'nitric oxide','NO2':'nitrogen dioxide','N2O':'nitrous oxide',
+    'HNO3':'nitric acid','H3PO4':'phosphoric acid','H2O2':'hydrogen peroxide',
+    'KOH':'potassium hydroxide','Ca(OH)2':'calcium hydroxide',
+    'Na2CO3':'sodium carbonate','NaHCO3':'sodium bicarbonate',
+    'CuSO4':'copper(II) sulfate','FeCl3':'iron(III) chloride',
+    'FeCl2':'iron(II) chloride','Al2O3':'aluminum oxide','SiO2':'silicon dioxide',
+    'FeS2':'iron pyrite','MnO2':'manganese dioxide','KMnO4':'potassium permanganate',
+    'K2Cr2O7':'potassium dichromate','AgNO3':'silver nitrate',
+    'BaSO4':'barium sulfate','PbSO4':'lead sulfate',
+    'CaCl2':'calcium chloride','MgCl2':'magnesium chloride',
+    'Na2SO4':'sodium sulfate','K2SO4':'potassium sulfate',
+    'NH4Cl':'ammonium chloride','NH4OH':'ammonium hydroxide',
+    'HBr':'hydrobromic acid','HI':'hydroiodic acid','HF':'hydrofluoric acid',
+    'H2S':'hydrogen sulfide','CO':'carbon monoxide',
+    'P4O10':'phosphorus pentoxide','N2O4':'dinitrogen tetroxide',
+    'PCl3':'phosphorus trichloride','PCl5':'phosphorus pentachloride',
+}
+
+SUBSTANCE_TYPES = ['element', 'diatomic', 'compound', 'ion', 'aqueous', 'gas']
+QUANTITY_UNITS = ['grams', 'moles', 'millimoles', 'kg', 'liters (STP)', 'molecules']
+TEMP_UNITS = ['C', 'K', 'F']
+PRESSURE_UNITS = ['atm', 'kPa', 'mmHg', 'bar', 'psi']
+HEAT_UNITS = ['J', 'kJ', 'cal', 'kcal']
+
+# ─── CHEMISTRY ENGINE ────────────────────────────────────────────────────────
+
+def parse_formula(formula):
+    """Parse chemical formula into {element: count} dict. Supports parentheses."""
+    formula = formula.strip()
+    if not formula:
+        return {}
+
+    def parse_group(s, i=0):
+        counts = defaultdict(int)
+        while i < len(s):
+            ch = s[i]
+            if ch in '([':
+                close = ')' if ch == '(' else ']'
+                i += 1
+                group, i = parse_group(s, i)
+                num = ''
+                while i < len(s) and s[i].isdigit():
+                    num += s[i]; i += 1
+                mult = int(num) if num else 1
+                for el, cnt in group.items():
+                    counts[el] += cnt * mult
+            elif ch in ')]':
+                return dict(counts), i + 1
+            elif ch.isupper():
+                el = ch; i += 1
+                while i < len(s) and s[i].islower():
+                    el += s[i]; i += 1
+                num = ''
+                while i < len(s) and s[i].isdigit():
+                    num += s[i]; i += 1
+                counts[el] += int(num) if num else 1
+            else:
+                i += 1
+        return dict(counts), i
+
+    try:
+        comp, _ = parse_group(formula)
+        return comp
+    except Exception:
+        return {}
+
+def calc_molar_mass(formula):
+    if not formula:
+        return 0.0
+    comp = parse_formula(formula)
+    if not comp:
+        return 0.0
+    return round(sum(ELEMENTS.get(el, 0) * n for el, n in comp.items()), 4)
+
+def auto_name(formula, stype):
+    """Try to auto-populate a name from formula."""
+    if not formula:
+        return ''
+    if stype == 'element':
+        comp = parse_formula(formula)
+        els = list(comp.keys())
+        if len(els) == 1:
+            return ELEMENT_NAMES.get(els[0], '')
+    name = COMMON_COMPOUNDS.get(formula, '')
+    return name
+
+def balance_equation(reactant_formulas, product_formulas):
+    """
+    Balance aA + bB + ... -> cC + dD + ...
+    Returns (coefficients_list, error_str).
+    Coefficients are ordered: all reactants then all products (skipping empty).
+    """
+    r_forms = [f.strip() for f in reactant_formulas if f.strip()]
+    p_forms  = [f.strip() for f in product_formulas  if f.strip()]
+    all_forms = r_forms + p_forms
+
+    if len(all_forms) < 2:
+        return None, 'Need at least 2 substances with formulas.'
+
+    # Parse compositions
+    comps = []
+    all_els = set()
+    for f in all_forms:
+        c = parse_formula(f)
+        if not c:
+            return None, f'Cannot parse formula: {f}'
+        comps.append(c)
+        all_els.update(c.keys())
+
+    if not all_els:
+        return None, 'No recognisable elements found.'
+
+    els = sorted(all_els)
+    nr  = len(r_forms)
+    ns  = len(all_forms)
+    ne  = len(els)
+
+    # Matrix A: rows = elements, cols = substances
+    # Reactants are +, products are − (so we seek Ax = 0)
+    A = np.zeros((ne, ns), dtype=float)
+    for j, comp in enumerate(comps):
+        sign = 1.0 if j < nr else -1.0
+        for i, el in enumerate(els):
+            A[i, j] = sign * comp.get(el, 0)
+
+    # Null space via SVD
+    try:
+        _, s_vals, Vt = np.linalg.svd(A, full_matrices=True)
+        null_vec = Vt[-1]
+
+        # Convert to integer ratios
+        fracs   = [Fraction(float(v)).limit_denominator(100) for v in null_vec]
+        denoms  = [f.denominator for f in fracs]
+        lcm_d   = reduce(lambda a, b: a * b // gcd(a, b), denoms)
+        ints    = [int(round(float(f * lcm_d))) for f in fracs]
+
+        # Ensure first reactant coefficient is positive
+        if ints[0] < 0:
+            ints = [-x for x in ints]
+
+        # Reject if any are <= 0
+        if any(x <= 0 for x in ints):
+            ints = [-x for x in ints]
+        if any(x <= 0 for x in ints):
+            return None, 'Cannot find all-positive integer coefficients.'
+
+        # GCD-simplify
+        g = reduce(gcd, [abs(x) for x in ints if x != 0])
+        if g > 1:
+            ints = [x // g for x in ints]
+
+        # Verify residual: rebuild signed vector (reactants +, products −)
+        signed = ints[:nr] + [-x for x in ints[nr:]]
+        residual = np.dot(A, signed)
+        if np.max(np.abs(residual)) > 0.5:
+            return None, 'Equation cannot be balanced (residual too large).'
+
+        return ints, None
+
+    except Exception as e:
+        return None, f'Solver error: {e}'
+
+def to_moles(qty, unit, mm):
+    if qty <= 0:
+        return 0.0
+    if unit == 'moles':        return qty
+    if unit == 'millimoles':   return qty / 1000.0
+    if unit == 'grams':        return qty / mm if mm > 0 else 0.0
+    if unit == 'kg':           return qty * 1000.0 / mm if mm > 0 else 0.0
+    if unit == 'liters (STP)': return qty / 22.414
+    if unit == 'molecules':    return qty / 6.02214076e23
+    return 0.0
+
+def from_moles(moles, unit, mm):
+    if unit == 'moles':        return moles
+    if unit == 'millimoles':   return moles * 1000.0
+    if unit == 'grams':        return moles * mm
+    if unit == 'kg':           return moles * mm / 1000.0
+    if unit == 'liters (STP)': return moles * 22.414
+    if unit == 'molecules':    return moles * 6.02214076e23
+    return 0.0
+
+# ─── SESSION STATE ────────────────────────────────────────────────────────────
+
+def default_sub(idx):
+    return dict(
+        stype   = 'element' if idx < 2 else 'compound',
+        formula = '',
+        name    = '',
+        qty     = 0.0,
+        unit    = 'grams',
+        mm      = 0.0,
+        valence = '',
+        temp    = 25.0,
+        temp_unit = 'C',
+        pressure  = 1.0,
+        pressure_unit = 'atm',
+        heat      = 0.0,
+        heat_unit = 'J',
+        role      = 'reactant' if idx < 2 else 'product',
+    )
+
+def ss_init():
+    defaults = {
+        'subs':     [default_sub(i) for i in range(4)],
+        'n_subs':   4,
+        'coeffs':   [1, 1, 1, 1, 1, 1],
+        'balanced': False,
+        'bal_err':  '',
+        'ref_idx':  0,
+        'p_yield':  100.0,
+    }
+    for k, v in defaults.items():
+        if k not in st.session_state:
+            st.session_state[k] = v
+
+ss_init()
+
+# ─── PAGE CONFIG ──────────────────────────────────────────────────────────────
+st.set_page_config(
+    page_title='Stoichiometry Calculator',
+    page_icon='⚗️',
+    layout='wide',
+    initial_sidebar_state='collapsed',
+)
+
+# ─── CUSTOM CSS ───────────────────────────────────────────────────────────────
+st.markdown("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+html, body, [class*="css"] {
+    font-family: 'IBM Plex Sans', sans-serif !important;
+}
+
+.stApp {
+    background: #0f1117;
+    color: #e2e8f0;
+}
+
+.main .block-container {
+    padding: 1.5rem 1.5rem 2rem;
+    max-width: 1500px;
+}
+
+/* Header strip */
+.calc-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 0 1rem 0;
+    border-bottom: 1px solid #1e2532;
+    margin-bottom: 1.2rem;
+}
+.calc-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #e2e8f0;
+    letter-spacing: -0.02em;
+}
+.calc-subtitle {
+    font-size: 0.72rem;
+    color: #64748b;
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+/* Panel cards */
+.sub-panel {
+    background: #161b27;
+    border: 1px solid #1e2532;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0;
+    position: relative;
+    overflow: hidden;
+}
+.sub-panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+}
+.sub-panel.reactant::before { background: #06b6d4; }
+.sub-panel.product::before  { background: #f59e0b; }
+
+.panel-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+}
+.panel-label.reactant { color: #06b6d4; }
+.panel-label.product  { color: #f59e0b; }
+
+/* Field labels */
+label, .stSelectbox label, .stNumberInput label, .stTextInput label {
+    font-size: 0.7rem !important;
+    color: #64748b !important;
+    font-family: 'IBM Plex Mono', monospace !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.08em !important;
+    margin-bottom: 2px !important;
+}
+
+/* Inputs */
+.stTextInput input, .stNumberInput input {
+    background: #0f1117 !important;
+    border: 1px solid #1e2532 !important;
+    color: #e2e8f0 !important;
+    border-radius: 4px !important;
+    font-family: 'IBM Plex Mono', monospace !important;
+    font-size: 0.85rem !important;
+    padding: 6px 10px !important;
+}
+.stTextInput input:focus, .stNumberInput input:focus {
+    border-color: #06b6d4 !important;
+    box-shadow: 0 0 0 2px rgba(6,182,212,0.15) !important;
+}
+
+/* Selectbox */
+.stSelectbox > div > div {
+    background: #0f1117 !important;
+    border: 1px solid #1e2532 !important;
+    color: #e2e8f0 !important;
+    border-radius: 4px !important;
+    font-family: 'IBM Plex Mono', monospace !important;
+    font-size: 0.82rem !important;
+}
+
+/* Metrics */
+[data-testid="stMetric"] {
+    background: #0f1117;
+    border: 1px solid #1e2532;
+    border-radius: 6px;
+    padding: 8px 10px;
+}
+[data-testid="stMetric"] label {
+    font-size: 0.65rem !important;
+    color: #64748b !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.08em !important;
+}
+[data-testid="stMetricValue"] {
+    font-family: 'IBM Plex Mono', monospace !important;
+    font-size: 1.1rem !important;
+    color: #e2e8f0 !important;
+}
+
+/* Buttons */
+.stButton button {
+    background: #0f1117 !important;
+    border: 1px solid #06b6d4 !important;
+    color: #06b6d4 !important;
+    font-family: 'IBM Plex Mono', monospace !important;
+    font-size: 0.78rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+    border-radius: 4px !important;
+    padding: 6px 14px !important;
+    transition: all 0.15s ease !important;
+}
+.stButton button:hover {
+    background: #06b6d4 !important;
+    color: #0f1117 !important;
+}
+.stButton button[kind="primary"] {
+    background: #06b6d4 !important;
+    color: #0f1117 !important;
+    border-color: #06b6d4 !important;
+}
+.stButton button[kind="primary"]:hover {
+    background: #0891b2 !important;
+    border-color: #0891b2 !important;
+}
+
+/* Divider */
+hr {
+    border-color: #1e2532 !important;
+    margin: 1rem 0 !important;
+}
+
+/* Alerts */
+.stSuccess {
+    background: #052e16 !important;
+    border: 1px solid #16a34a !important;
+    border-radius: 6px !important;
+    color: #4ade80 !important;
+    font-family: 'IBM Plex Mono', monospace !important;
+}
+.stError {
+    background: #1c0b0b !important;
+    border: 1px solid #dc2626 !important;
+    border-radius: 6px !important;
+    color: #fca5a5 !important;
+    font-family: 'IBM Plex Mono', monospace !important;
+}
+.stInfo {
+    background: #0c1a24 !important;
+    border: 1px solid #0369a1 !important;
+    border-radius: 6px !important;
+    color: #7dd3fc !important;
+    font-family: 'IBM Plex Mono', monospace !important;
+}
+
+/* Expander */
+.streamlit-expanderHeader {
+    background: #0f1117 !important;
+    border: 1px solid #1e2532 !important;
+    border-radius: 4px !important;
+    color: #64748b !important;
+    font-family: 'IBM Plex Mono', monospace !important;
+    font-size: 0.72rem !important;
+}
+
+/* Equation display */
+.eq-box {
+    background: #0c0f18;
+    border: 1px solid #1e2532;
+    border-radius: 8px;
+    padding: 16px 20px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.1rem;
+    color: #e2e8f0;
+    text-align: center;
+    letter-spacing: 0.03em;
+    margin: 0.5rem 0;
+}
+.eq-balanced { border-color: #16a34a; color: #4ade80; }
+.eq-coeff { color: #f59e0b; font-weight: 600; }
+.eq-arrow { color: #64748b; padding: 0 10px; }
+
+/* Result grid */
+.result-card {
+    background: #0c0f18;
+    border: 1px solid #1e2532;
+    border-radius: 6px;
+    padding: 12px;
+    text-align: center;
+    font-family: 'IBM Plex Mono', monospace;
+}
+.result-formula {
+    font-size: 1.1rem;
+    color: #e2e8f0;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+.result-value {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 6px 0 2px;
+}
+.result-value.reactant { color: #06b6d4; }
+.result-value.product  { color: #f59e0b; }
+.result-moles {
+    font-size: 0.72rem;
+    color: #64748b;
+}
+.result-unit {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* Coefficient badge */
+.coeff-badge {
+    display: inline-block;
+    background: #1e2532;
+    color: #f59e0b;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 3px;
+    letter-spacing: 0.04em;
+    margin-top: 4px;
+}
+
+/* Section header */
+.section-header {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #475569;
+    font-weight: 600;
+    padding: 0 0 6px 0;
+    border-bottom: 1px solid #1e2532;
+    margin-bottom: 0.8rem;
+}
+
+/* Remove default streamlit spacing */
+[data-testid="stHorizontalBlock"] { gap: 0.75rem; }
+.element-container { margin-bottom: 0 !important; }
+</style>
+""", unsafe_allow_html=True)
+
+# ─── HEADER ──────────────────────────────────────────────────────────────────
+st.markdown("""
+<div class="calc-header">
+  <span style="font-size:1.4rem">⚗️</span>
+  <div>
+    <div class="calc-title">Stoichiometry Calculator</div>
+    <div class="calc-subtitle">Chemical Equation Balancer &amp; Mole Calculator</div>
+  </div>
+</div>
+""", unsafe_allow_html=True)
+
+# ─── TOOLBAR ─────────────────────────────────────────────────────────────────
+tc = st.columns([1.2, 1, 1.1, 1.1, 0.9, 1.3])
+
+with tc[0]:
+    n_choice = st.selectbox('Substances', [2, 3, 4, 5, 6],
+                             index=[2,3,4,5,6].index(st.session_state.n_subs)
+                                   if st.session_state.n_subs in [2,3,4,5,6] else 2,
+                             key='n_subs_sel')
+    if n_choice != st.session_state.n_subs:
+        while len(st.session_state.subs) < n_choice:
+            st.session_state.subs.append(default_sub(len(st.session_state.subs)))
+        st.session_state.n_subs = n_choice
+        st.session_state.balanced = False
+        st.rerun()
+
+with tc[1]:
+    p_yield = st.number_input('Yield (%)', 0.0, 100.0,
+                               float(st.session_state.p_yield), 0.1, key='yield_inp')
+    st.session_state.p_yield = p_yield
+
+with tc[2]:
+    ref_options = [f'Substance {i+1}' for i in range(st.session_state.n_subs)]
+    ref_sel = st.selectbox('Known quantity', ref_options,
+                            index=min(st.session_state.ref_idx, st.session_state.n_subs - 1),
+                            key='ref_sel')
+    st.session_state.ref_idx = ref_options.index(ref_sel)
+
+with tc[3]:
+    st.write('')
+    st.write('')
+    bal_btn = st.button('⚖  Balance Equation', use_container_width=True, type='primary')
+
+with tc[4]:
+    st.write('')
+    st.write('')
+    if st.button('↺  Reset', use_container_width=True):
+        st.session_state.subs = [default_sub(i) for i in range(4)]
+        st.session_state.n_subs = 4
+        st.session_state.coeffs = [1,1,1,1,1,1]
+        st.session_state.balanced = False
+        st.session_state.bal_err = ''
+        st.rerun()
+
+with tc[5]:
+    # Quick-load examples
+    example = st.selectbox('Load example', [
+        '— select —',
+        'Combustion: CH4 + O2',
+        'Thermite: Al + Fe2O3',
+        'Haber: N2 + H2 → NH3',
+        'Iron rusting: Fe + O2 → Fe2O3',
+        'Electrolysis: H2O → H2 + O2',
+        'HCl + NaOH neutralisation',
+    ], key='example_sel')
+
+    if example == 'Combustion: CH4 + O2':
+        st.session_state.subs = [default_sub(i) for i in range(4)]
+        st.session_state.n_subs = 4
+        st.session_state.subs[0].update(dict(stype='compound',formula='CH4',name='methane',qty=16.043,unit='grams',mm=16.043,role='reactant'))
+        st.session_state.subs[1].update(dict(stype='diatomic',formula='O2',name='oxygen',qty=0.0,unit='grams',mm=31.998,role='reactant'))
+        st.session_state.subs[2].update(dict(stype='compound',formula='CO2',name='carbon dioxide',qty=0.0,unit='grams',mm=44.009,role='product'))
+        st.session_state.subs[3].update(dict(stype='compound',formula='H2O',name='water',qty=0.0,unit='grams',mm=18.015,role='product'))
+        st.session_state.balanced = False; st.rerun()
+
+    elif example == 'Thermite: Al + Fe2O3':
+        st.session_state.subs = [default_sub(i) for i in range(4)]
+        st.session_state.n_subs = 4
+        st.session_state.subs[0].update(dict(stype='element',formula='Al',name='aluminum',qty=53.96,unit='grams',mm=26.982,role='reactant'))
+        st.session_state.subs[1].update(dict(stype='compound',formula='Fe2O3',name='iron(III) oxide',qty=0.0,unit='grams',mm=159.687,role='reactant'))
+        st.session_state.subs[2].update(dict(stype='compound',formula='Al2O3',name='aluminum oxide',qty=0.0,unit='grams',mm=101.961,role='product'))
+        st.session_state.subs[3].update(dict(stype='element',formula='Fe',name='iron',qty=0.0,unit='grams',mm=55.845,role='product'))
+        st.session_state.balanced = False; st.rerun()
+
+    elif example == 'Haber: N2 + H2 → NH3':
+        st.session_state.subs = [default_sub(i) for i in range(3)]
+        st.session_state.n_subs = 3
+        st.session_state.subs[0].update(dict(stype='diatomic',formula='N2',name='nitrogen',qty=28.014,unit='grams',mm=28.014,role='reactant'))
+        st.session_state.subs[1].update(dict(stype='diatomic',formula='H2',name='hydrogen',qty=0.0,unit='grams',mm=2.016,role='reactant'))
+        st.session_state.subs[2].update(dict(stype='compound',formula='NH3',name='ammonia',qty=0.0,unit='grams',mm=17.031,role='product'))
+        st.session_state.balanced = False; st.rerun()
+
+    elif example == 'Iron rusting: Fe + O2 → Fe2O3':
+        st.session_state.subs = [default_sub(i) for i in range(3)]
+        st.session_state.n_subs = 3
+        st.session_state.subs[0].update(dict(stype='element',formula='Fe',name='iron',qty=55.845,unit='grams',mm=55.845,role='reactant'))
+        st.session_state.subs[1].update(dict(stype='diatomic',formula='O2',name='oxygen',qty=0.0,unit='grams',mm=31.998,role='reactant'))
+        st.session_state.subs[2].update(dict(stype='compound',formula='Fe2O3',name='iron(III) oxide',qty=0.0,unit='grams',mm=159.687,role='product'))
+        st.session_state.balanced = False; st.rerun()
+
+    elif example == 'Electrolysis: H2O → H2 + O2':
+        st.session_state.subs = [default_sub(i) for i in range(3)]
+        st.session_state.n_subs = 3
+        st.session_state.subs[0].update(dict(stype='compound',formula='H2O',name='water',qty=18.015,unit='grams',mm=18.015,role='reactant'))
+        st.session_state.subs[1].update(dict(stype='diatomic',formula='H2',name='hydrogen',qty=0.0,unit='grams',mm=2.016,role='product'))
+        st.session_state.subs[2].update(dict(stype='diatomic',formula='O2',name='oxygen',qty=0.0,unit='grams',mm=31.998,role='product'))
+        st.session_state.balanced = False; st.rerun()
+
+    elif example == 'HCl + NaOH neutralisation':
+        st.session_state.subs = [default_sub(i) for i in range(4)]
+        st.session_state.n_subs = 4
+        st.session_state.subs[0].update(dict(stype='aqueous',formula='HCl',name='hydrochloric acid',qty=36.46,unit='grams',mm=36.46,role='reactant'))
+        st.session_state.subs[1].update(dict(stype='aqueous',formula='NaOH',name='sodium hydroxide',qty=0.0,unit='grams',mm=39.997,role='reactant'))
+        st.session_state.subs[2].update(dict(stype='aqueous',formula='NaCl',name='sodium chloride',qty=0.0,unit='grams',mm=58.44,role='product'))
+        st.session_state.subs[3].update(dict(stype='compound',formula='H2O',name='water',qty=0.0,unit='grams',mm=18.015,role='product'))
+        st.session_state.balanced = False; st.rerun()
+
+st.markdown('<div class="section-header">Substances</div>', unsafe_allow_html=True)
+
+# ─── SUBSTANCE PANELS ────────────────────────────────────────────────────────
+n   = st.session_state.n_subs
+cols_per_row = 4 if n >= 4 else n
+need_rerun = False
+
+for row_start in range(0, n, cols_per_row):
+    row_end  = min(row_start + cols_per_row, n)
+    row_cols = st.columns(row_end - row_start)
+
+    for j, col in enumerate(row_cols):
+        i = row_start + j
+        s = st.session_state.subs[i]
+        role_cls   = s['role']
+        role_label = '▶  REACTANT' if s['role'] == 'reactant' else '◀  PRODUCT'
+
+        with col:
+            st.markdown(f'<div class="sub-panel {role_cls}">', unsafe_allow_html=True)
+            st.markdown(f'<div class="panel-label {role_cls}">{role_label} — #{i+1}</div>', unsafe_allow_html=True)
+
+            # Role + Type row
+            rc, tc2 = st.columns([1, 1])
+            with rc:
+                role = st.selectbox('Role', ['reactant', 'product'],
+                                     index=0 if s['role'] == 'reactant' else 1,
+                                     key=f'role_{i}')
+                if role != s['role']:
+                    s['role'] = role
+                    need_rerun = True
+            with tc2:
+                stype = st.selectbox('Type', SUBSTANCE_TYPES,
+                                      index=SUBSTANCE_TYPES.index(s['stype'])
+                                            if s['stype'] in SUBSTANCE_TYPES else 0,
+                                      key=f'type_{i}')
+                s['stype'] = stype
+
+            # Formula
+            formula = st.text_input('Formula', s['formula'],
+                                     key=f'formula_{i}', placeholder='H2O, Fe2O3, Ca(OH)2')
+            if formula != s['formula']:
+                s['formula'] = formula
+                s['mm'] = calc_molar_mass(formula)
+                if not s['name']:
+                    s['name'] = auto_name(formula, stype)
+                need_rerun = True
+
+            # Name + Molar mass
+            nc2, mc2 = st.columns([3, 2])
+            with nc2:
+                name = st.text_input('Name', s['name'], key=f'name_{i}',
+                                      placeholder='common name')
+                s['name'] = name
+            with mc2:
+                mm_str = f'{s["mm"]:.4f}' if s['mm'] > 0 else '—'
+                st.metric('g/mol', mm_str)
+
+            # Quantity + Units
+            qc2, uc2 = st.columns([2, 2])
+            with qc2:
+                qty = st.number_input('Quantity', 0.0, value=float(s['qty']),
+                                       format='%g', key=f'qty_{i}')
+                s['qty'] = qty
+            with uc2:
+                unit = st.selectbox('Units', QUANTITY_UNITS,
+                                     index=QUANTITY_UNITS.index(s['unit'])
+                                           if s['unit'] in QUANTITY_UNITS else 0,
+                                     key=f'unit_{i}')
+                s['unit'] = unit
+
+            # Coefficient badge (when balanced)
+            if st.session_state.balanced and i < len(st.session_state.coeffs):
+                c = st.session_state.coeffs[i]
+                st.markdown(f'<div class="coeff-badge">coeff = {c}</div>', unsafe_allow_html=True)
+
+            # Extra fields
+            with st.expander('▸ Temp · Pressure · Valence', expanded=False):
+                e1, e2 = st.columns(2)
+                with e1:
+                    temp = st.number_input('Temperature', value=float(s['temp']),
+                                            key=f'temp_{i}', format='%g')
+                    s['temp'] = temp
+                    pres = st.number_input('Pressure', value=float(s['pressure']),
+                                            key=f'pres_{i}', format='%g')
+                    s['pressure'] = pres
+                with e2:
+                    tunit = st.selectbox('T unit', TEMP_UNITS,
+                                          index=TEMP_UNITS.index(s['temp_unit']),
+                                          key=f'tunit_{i}')
+                    s['temp_unit'] = tunit
+                    punit = st.selectbox('P unit', PRESSURE_UNITS,
+                                          index=PRESSURE_UNITS.index(s['pressure_unit']),
+                                          key=f'punit_{i}')
+                    s['pressure_unit'] = punit
+
+                hc2, huc2 = st.columns(2)
+                with hc2:
+                    heat = st.number_input('Heat', value=float(s['heat']),
+                                            key=f'heat_{i}', format='%g')
+                    s['heat'] = heat
+                with huc2:
+                    hunit = st.selectbox('H unit', HEAT_UNITS,
+                                          index=HEAT_UNITS.index(s['heat_unit']),
+                                          key=f'hunit_{i}')
+                    s['heat_unit'] = hunit
+
+                val = st.text_input('Valence', s['valence'], key=f'val_{i}',
+                                     placeholder='e.g.  +2,  -1,  3+')
+                s['valence'] = val
+
+            st.markdown('</div>', unsafe_allow_html=True)
+
+if need_rerun:
+    st.rerun()
+
+# ─── BALANCE ACTION ──────────────────────────────────────────────────────────
+if bal_btn:
+    subs = st.session_state.subs[:n]
+    r_forms = [s['formula'] for s in subs if s['role'] == 'reactant']
+    p_forms  = [s['formula'] for s in subs if s['role'] == 'product']
+
+    raw_coeffs, err = balance_equation(r_forms, p_forms)
+
+    if err:
+        st.session_state.bal_err = err
+        st.session_state.balanced = False
+    else:
+        # Re-map coefficients back to full substance list order
+        r_idxs = [i for i, s in enumerate(subs) if s['role'] == 'reactant']
+        p_idxs = [i for i, s in enumerate(subs) if s['role'] == 'product']
+
+        # raw_coeffs: first len(r_idxs) are reactants, rest are products (skipping empties)
+        r_forms_valid = [s['formula'] for s in subs if s['role']=='reactant' and s['formula'].strip()]
+        p_forms_valid = [s['formula'] for s in subs if s['role']=='product'  and s['formula'].strip()]
+        nr_v = len(r_forms_valid)
+
+        full = [1] * n
+        ri = pi = 0
+        for i, s in enumerate(subs):
+            if s['role'] == 'reactant' and s['formula'].strip():
+                if ri < nr_v and ri < len(raw_coeffs):
+                    full[i] = raw_coeffs[ri]
+                ri += 1
+            elif s['role'] == 'product' and s['formula'].strip():
+                ci = nr_v + pi
+                if ci < len(raw_coeffs):
+                    full[i] = raw_coeffs[ci]
+                pi += 1
+
+        st.session_state.coeffs = full
+        st.session_state.balanced = True
+        st.session_state.bal_err = ''
+    st.rerun()
+
+# ─── EQUATION DISPLAY ────────────────────────────────────────────────────────
+st.markdown('<div class="section-header" style="margin-top:1rem">Chemical Equation</div>',
+            unsafe_allow_html=True)
+
+subs   = st.session_state.subs[:n]
+coeffs = st.session_state.coeffs if len(st.session_state.coeffs) >= n else [1] * n
+
+def fmt_term(coeff, formula):
+    if coeff > 1:
+        return f'<span class="eq-coeff">{coeff}</span> {formula}'
+    return formula
+
+r_terms = [fmt_term(coeffs[i], s['formula'])
+           for i, s in enumerate(subs) if s['role']=='reactant' and s['formula']]
+p_terms = [fmt_term(coeffs[i], s['formula'])
+           for i, s in enumerate(subs) if s['role']=='product'  and s['formula']]
+
+if r_terms or p_terms:
+    r_str = ' + '.join(r_terms) if r_terms else '?'
+    p_str = ' + '.join(p_terms) if p_terms else '?'
+    eq_html = f'{r_str} <span class="eq-arrow">⟶</span> {p_str}'
+    bal_cls = 'eq-balanced' if st.session_state.balanced else ''
+    check   = ' &nbsp;✓ balanced' if st.session_state.balanced else ''
+    st.markdown(
+        f'<div class="eq-box {bal_cls}">{eq_html}{check}</div>',
+        unsafe_allow_html=True
+    )
+
+if st.session_state.bal_err:
+    st.error(f'⚠ {st.session_state.bal_err}')
+
+# ─── STOICHIOMETRY RESULTS ────────────────────────────────────────────────────
+if st.session_state.balanced:
+    ref_idx = min(st.session_state.ref_idx, n - 1)
+    ref_s   = subs[ref_idx]
+    ref_c   = coeffs[ref_idx] if ref_idx < len(coeffs) else 1
+
+    st.markdown('<div class="section-header" style="margin-top:1rem">Stoichiometric Quantities</div>',
+                unsafe_allow_html=True)
+
+    if ref_s['qty'] > 0 and ref_s['mm'] > 0 and ref_c > 0:
+        ref_moles_per_coeff = to_moles(ref_s['qty'], ref_s['unit'], ref_s['mm']) / ref_c
+
+        result_cols = st.columns(n)
+        for i, (s, c) in enumerate(zip(subs, coeffs)):
+            with result_cols[i]:
+                if s['mm'] > 0 and c > 0:
+                    target_moles = ref_moles_per_coeff * c
+                    if s['role'] == 'product':
+                        target_moles *= st.session_state.p_yield / 100.0
+
+                    qty_out = from_moles(target_moles, s['unit'], s['mm'])
+                    role_cls2 = s['role']
+
+                    formula_label = s['formula'] if s['formula'] else f'Sub {i+1}'
+                    is_ref = '★ ' if i == ref_idx else ''
+                    name_str = s['name'] if s['name'] else ''
+
+                    st.markdown(f"""
+<div class="result-card">
+  <div class="result-formula">{is_ref}{formula_label}</div>
+  <div class="result-moles" style="font-size:0.67rem;color:#475569;margin-bottom:2px">{name_str}</div>
+  <div class="result-value {role_cls2}">{qty_out:.5g}</div>
+  <div class="result-unit">{s['unit']}</div>
+  <div class="result-moles">{target_moles:.5g} mol &nbsp;|&nbsp; coeff {c}</div>
+</div>""", unsafe_allow_html=True)
+                else:
+                    st.markdown(f"""
+<div class="result-card">
+  <div class="result-formula">{s['formula'] or f'Sub {i+1}'}</div>
+  <div class="result-moles" style="color:#475569;margin-top:8px">Enter formula &amp; molar mass</div>
+</div>""", unsafe_allow_html=True)
+
+        # Summary metrics
+        st.markdown('<div style="margin-top:1rem"></div>', unsafe_allow_html=True)
+        sm = st.columns(4)
+        with sm[0]:
+            st.metric('Reference substance', ref_s['formula'] or f'#{ref_idx+1}')
+        with sm[1]:
+            ref_moles_total = to_moles(ref_s['qty'], ref_s['unit'], ref_s['mm'])
+            st.metric('Reference moles', f'{ref_moles_total:.5g} mol')
+        with sm[2]:
+            st.metric('Process yield', f'{st.session_state.p_yield:.1f}%')
+        with sm[3]:
+            st.metric('Substances', n)
+
+    else:
+        st.info('Enter a quantity for the known substance (★) to calculate stoichiometric amounts for all others.')
+
+# ─── FOOTER ──────────────────────────────────────────────────────────────────
+st.markdown("""
+<div style="margin-top:2rem;padding-top:1rem;border-top:1px solid #1e2532;
+     font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:#334155;
+     display:flex;justify-content:space-between;">
+  <span>⚗️ Stoichiometry Calculator — WebAssembly Edition</span>
+  <span>Avogadro 6.022 × 10²³ · STP 22.414 L/mol · Molar masses from IUPAC 2021</span>
+</div>
+""", unsafe_allow_html=True)
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@stlite/mountable@0.63.0/build/stlite.js"></script>
+<script>
+  const code = document.getElementById('app-code').textContent;
+  stlite.mount(
+    {
+      requirements: [],
+      entrypoint: "app.py",
+      files: { "app.py": code }
+    },
+    document.getElementById("root")
+  );
+</script>
+</body>
+</html>
