@@ -1,0 +1,1002 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#062f55" />
+  <meta name="description" content="Livermore Flying Electrons club website prototype with events, membership, field conditions, member dashboard, and newsletter archive." />
+  <meta property="og:title" content="Livermore Flying Electrons" />
+  <meta property="og:description" content="Radio-control aviation, events, membership, field information, and club news in Livermore, California." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="images/social-preview.jpg" />
+  <link rel="icon" href="images/favicon.svg" type="image/svg+xml" />
+  <title>Livermore Flying Electrons — ACMS Club Website Prototype</title>
+  <!--
+    EXTERNAL IMAGE ASSET MANIFEST
+    Place this HTML next to an "images" directory containing:
+      images/lfe-logo.svg
+      images/hero-warbird.webp
+      images/event-warbirds-2026.webp
+      images/field-camera-north-pits.jpg
+      images/field-camera-runway.jpg
+      images/news-warbirds-volunteer.webp
+      images/news-july-newsletter.webp
+      images/news-field-maintenance.webp
+      images/favicon.svg
+      images/social-preview.jpg
+
+    Every in-page image has a built-in CSS/SVG fallback, so the prototype
+    remains usable while assets are missing or still being prepared.
+
+    LIVE EXTERNAL SERVICES USED BY THE FIELD PAGE
+      Webcam: http://webcam.lferc.com:8094/videostream.cgi
+      Weather station: WeatherLink embeddable page
+      Forecast: static standalone fallback plus LFERC NWSForecast.php support
+      Photos: https://www.lferc.com/PhotoAlbum/
+
+    Note: the webcam is currently served over plain HTTP. Browsers may block
+    it when this file is deployed from an HTTPS website. A direct-open link
+    and local fallback image are included for that case.
+  -->
+  <style>
+    :root {
+      --navy: #052f55;
+      --navy-2: #082641;
+      --blue: #0d62b7;
+      --blue-soft: #eaf4ff;
+      --gold: #ffc400;
+      --gold-deep: #e9a900;
+      --ink: #0d2946;
+      --muted: #617287;
+      --line: #d9e2ea;
+      --paper: #ffffff;
+      --canvas: #f4f7fa;
+      --green: #20954b;
+      --red: #c83e3e;
+      --shadow: 0 16px 44px rgba(4, 36, 66, .12);
+      --radius: 10px;
+      --max: 1240px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    a { color: inherit; }
+    svg { display: block; }
+
+    .external-image {
+      display: block;
+      opacity: 0;
+      transition: opacity .24s ease;
+    }
+    .external-image.is-loaded { opacity: 1; }
+    .media-frame { position: relative; overflow: hidden; }
+    .media-frame > .external-image {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .media-frame > .external-image.contain { object-fit: contain; }
+    .brand-mark-stack { width: 48px; height: 48px; flex: 0 0 auto; position: relative; }
+    .brand-mark-stack .brand-mark { width: 100%; height: 100%; }
+    .brand-logo-image { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; object-fit: contain; }
+
+    .app-shell { min-height: 100vh; display: flex; flex-direction: column; }
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: linear-gradient(90deg, var(--navy-2), var(--navy));
+      color: #fff;
+      box-shadow: 0 4px 22px rgba(0,0,0,.16);
+    }
+    .header-inner {
+      max-width: var(--max);
+      margin: auto;
+      min-height: 74px;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      gap: 22px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 270px;
+      text-decoration: none;
+    }
+    .brand-copy { line-height: 1.05; }
+    .brand-copy strong { display: block; font-size: 15px; letter-spacing: .02em; }
+    .brand-copy small { display: block; margin-top: 5px; font-size: 10px; opacity: .84; text-transform: uppercase; letter-spacing: .09em; }
+
+    .desktop-nav { display: flex; align-items: center; gap: 4px; margin-left: auto; }
+    .nav-link {
+      border: 0;
+      text-decoration: none;
+      background: transparent;
+      color: rgba(255,255,255,.84);
+      padding: 10px 9px;
+      font-size: 12px;
+      font-weight: 750;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+    }
+    .nav-link:hover, .nav-link.active { color: #fff; border-bottom-color: var(--gold); }
+    .login-btn {
+      border: 0;
+      border-radius: 5px;
+      background: var(--gold);
+      color: #102a44;
+      font-weight: 900;
+      padding: 11px 15px;
+      margin-left: 8px;
+      box-shadow: inset 0 -2px 0 rgba(0,0,0,.1);
+    }
+    .mobile-toggle { display: none; margin-left: auto; border: 1px solid rgba(255,255,255,.3); color: #fff; background: transparent; border-radius: 6px; padding: 8px 10px; }
+    .mobile-nav { display: none; background: var(--navy-2); border-top: 1px solid rgba(255,255,255,.12); padding: 8px 16px 14px; }
+    .mobile-nav.open { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .mobile-nav .nav-link, .mobile-nav .login-btn { margin: 0; text-align: left; }
+
+    main { flex: 1; }
+    .view { display: none; animation: fadeIn .24s ease; }
+    .view.active { display: block; }
+    @keyframes fadeIn { from { opacity: .4; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+    .content-wrap { max-width: var(--max); margin: 0 auto; padding: 28px 20px 42px; }
+    .page-title { margin: 0 0 4px; font-size: clamp(28px, 4vw, 42px); letter-spacing: -.035em; line-height: 1.05; }
+    .page-kicker { margin: 0 0 22px; color: var(--muted); }
+    .section-title { font-size: 14px; margin: 0 0 12px; text-transform: uppercase; letter-spacing: .05em; }
+
+    .btn {
+      border: 1px solid transparent;
+      border-radius: 5px;
+      padding: 11px 16px;
+      font-weight: 850;
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(4, 36, 66, .14); }
+    .btn-primary { background: var(--gold); color: #0b2945; }
+    .btn-secondary { background: #fff; color: var(--navy); border-color: var(--line); }
+    .btn-blue { background: var(--blue); color: white; }
+    .btn-sm { padding: 8px 11px; font-size: 12px; }
+    .link-button { border: 0; background: none; padding: 0; color: var(--blue); font-weight: 800; }
+
+    .card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 7px 24px rgba(4, 36, 66, .055);
+    }
+
+    /* HOME */
+    .hero {
+      background: #dbeaf6;
+      position: relative;
+      overflow: hidden;
+      border-bottom: 1px solid var(--line);
+    }
+    .hero-photo {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+    }
+    .hero-shade {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background: linear-gradient(90deg, rgba(236,246,253,.98) 0%, rgba(236,246,253,.88) 34%, rgba(236,246,253,.28) 61%, rgba(236,246,253,.04) 100%);
+    }
+    .hero.has-hero-photo .hero-art { opacity: 0; }
+    .hero.has-hero-photo::before { opacity: 0; }
+    .hero-inner {
+      max-width: var(--max);
+      min-height: 430px;
+      margin: auto;
+      padding: 54px 20px;
+      display: grid;
+      grid-template-columns: minmax(300px, .8fr) minmax(460px, 1.2fr);
+      align-items: center;
+      gap: 20px;
+      position: relative;
+      z-index: 2;
+    }
+    .hero-copy { max-width: 440px; }
+    .hero-copy h1 { margin: 0 0 14px; font-size: clamp(40px, 6vw, 64px); line-height: .96; letter-spacing: -.045em; text-transform: uppercase; }
+    .hero-copy p { margin: 0 0 24px; font-size: 18px; color: #223c54; max-width: 390px; }
+    .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .hero-art { position: relative; height: 300px; transition: opacity .24s ease; }
+    .hero-art svg { width: 100%; height: 100%; filter: drop-shadow(0 22px 16px rgba(0,0,0,.24)); }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      height: 42%;
+      background:
+        linear-gradient(165deg, transparent 0 24%, rgba(35,90,112,.42) 24.5% 42%, transparent 42.5%),
+        linear-gradient(195deg, transparent 0 34%, rgba(25,72,96,.3) 34.5% 51%, transparent 51.5%),
+        linear-gradient(#b7d5e8, #93bdce 55%, #767c65 56%, #a48d59 100%);
+      opacity: .85;
+      z-index: 0;
+    }
+    .feature-banner {
+      max-width: var(--max);
+      margin: -28px auto 0;
+      position: relative;
+      z-index: 4;
+      padding: 0 20px;
+    }
+    .feature-banner-inner {
+      border-radius: 8px;
+      padding: 20px 22px;
+      color: #fff;
+      background: linear-gradient(100deg, #062b4d, #074b7e);
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+    .feature-icon { width: 56px; height: 56px; flex: 0 0 auto; }
+    .feature-copy { flex: 1; }
+    .feature-copy h2 { margin: 0; font-size: 22px; }
+    .feature-copy p { margin: 3px 0 0; opacity: .9; }
+    .quick-grid { max-width: var(--max); margin: auto; padding: 28px 20px 48px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+    .quick-card { padding: 22px 14px; text-align: center; border-right: 1px solid var(--line); }
+    .quick-card:last-child { border-right: 0; }
+    .quick-card .icon { font-size: 26px; }
+    .quick-card strong { display: block; font-size: 13px; margin-top: 7px; }
+    .quick-card small { color: var(--muted); }
+
+    /* EVENTS */
+    .toolbar { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 14px; }
+    .segmented { display: inline-flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; background: #fff; }
+    .segmented button { border: 0; background: #fff; color: var(--navy); font-weight: 800; padding: 9px 13px; }
+    .segmented button.active { background: var(--blue); color: #fff; }
+    .events-layout { display: grid; grid-template-columns: .92fr 1.08fr; gap: 18px; }
+    .event-list { padding: 14px; }
+    .event-row { display: grid; grid-template-columns: 62px 1fr auto; align-items: center; gap: 14px; padding: 14px 4px; border-bottom: 1px solid var(--line); }
+    .event-row:last-child { border-bottom: 0; }
+    .date-tile { border-right: 1px solid var(--line); text-align: center; padding-right: 12px; }
+    .date-tile b { display: block; font-size: 20px; line-height: 1; }
+    .date-tile span { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: 850; }
+    .event-copy strong { font-size: 14px; display: block; }
+    .event-copy small { display: block; color: var(--muted); margin-top: 3px; }
+    .calendar-card { padding: 14px; }
+    .calendar-head { display: flex; align-items: center; justify-content: space-between; padding: 4px 2px 14px; }
+    .calendar-head strong { text-transform: uppercase; letter-spacing: .04em; }
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+    .calendar-grid div { min-height: 46px; border-radius: 6px; padding: 6px; font-size: 12px; border: 1px solid transparent; }
+    .calendar-grid .dow { min-height: auto; text-align: center; font-size: 10px; color: var(--muted); font-weight: 900; text-transform: uppercase; }
+    .calendar-grid .day { background: #f8fafc; }
+    .calendar-grid .muted { color: #b3bdc8; }
+    .calendar-grid .has-event { background: #fff2b0; border-color: #f1c300; font-weight: 900; }
+    .featured-event { display: grid; grid-template-columns: 138px 1fr; gap: 14px; padding: 14px; margin-top: 14px; }
+    .plane-thumb { min-height: 94px; border-radius: 7px; overflow: hidden; background: linear-gradient(#c9e6f6 55%, #b29964 56%); position: relative; }
+    .plane-thumb::before { content: "✈"; position: absolute; font-size: 62px; transform: rotate(-10deg); left: 34px; top: 12px; color: #183d5f; text-shadow: 2px 3px 0 white; }
+    .event-list-mode .calendar-card { display: none; }
+    .event-list-mode .events-layout { grid-template-columns: 1fr; }
+
+    /* MEMBERSHIP */
+    .membership-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .membership-card { padding: 26px 24px; text-align: center; display: flex; flex-direction: column; min-height: 390px; }
+    .membership-card.featured { border: 2px solid var(--gold); transform: translateY(-4px); }
+    .membership-card h2 { font-size: 18px; margin: 0; text-transform: uppercase; }
+    .membership-card .age { color: var(--muted); font-size: 12px; margin-top: 4px; }
+    .price { font-size: 44px; font-weight: 950; letter-spacing: -.04em; margin: 22px 0 16px; }
+    .price small { font-size: 14px; letter-spacing: 0; }
+    .benefits { list-style: none; padding: 0; margin: 0 0 22px; text-align: left; flex: 1; }
+    .benefits li { padding: 7px 0 7px 22px; position: relative; border-bottom: 1px solid #edf1f5; font-size: 13px; }
+    .benefits li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 900; }
+    .trust-row { margin-top: 18px; padding: 20px; display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; text-align: center; }
+    .trust-row strong { display: block; font-size: 13px; }
+    .trust-row span { display: block; color: var(--muted); font-size: 12px; }
+
+    /* FIELD */
+    .metric-label { font-size: 11px; font-weight: 900; color: var(--blue); text-transform: uppercase; letter-spacing: .05em; }
+    .live-field-grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(300px, .55fr); gap: 16px; align-items: start; }
+    .live-card, .weatherlink-card, .forecast-card, .field-details, .photo-card { padding: 18px; }
+    .card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; margin-bottom: 12px; }
+    .card-head h2 { margin: 3px 0 0; font-size: 20px; }
+    .card-head p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+    .camera-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .live-webcam-frame { position: relative; aspect-ratio: 4 / 3; border-radius: 8px; overflow: hidden; background: linear-gradient(#bfe1f2 0 54%, #69754e 55% 61%, #b99a67 62%); }
+    .live-webcam-frame::before { content: ""; position: absolute; z-index: 0; left: 8%; right: 8%; bottom: 22%; height: 8%; background: #665d4d; transform: perspective(100px) rotateX(4deg); }
+    .webcam-fallback, .webcam-stream { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .webcam-fallback { z-index: 1; }
+    .webcam-stream { z-index: 2; opacity: 1; transition: opacity .25s ease; background: #dbeaf6; }
+    .live-webcam-frame.stream-error .webcam-stream { opacity: 0; }
+    .live-badge { position: absolute; left: 10px; bottom: 9px; z-index: 4; font-size: 10px; font-weight: 900; color: #fff; background: rgba(198,42,42,.92); padding: 4px 7px; border-radius: 4px; letter-spacing: .05em; }
+    .camera-note { display: flex; align-items: flex-start; gap: 9px; margin-top: 12px; padding: 10px 12px; border-radius: 7px; background: #fff8dc; color: #6d5310; font-size: 12px; }
+    .camera-note strong { color: #4c3908; }
+    .weatherlink-card { text-align: center; }
+    .weatherlink-shell { display: flex; justify-content: center; overflow: hidden; border-radius: 8px; background: #f8fafc; min-height: 535px; }
+    .weatherlink-shell iframe { display: block; width: 338px; max-width: 100%; height: 535px; border: 0; }
+    .weatherlink-card .external-links { justify-content: center; }
+    .field-second-row { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(280px, .7fr); gap: 16px; margin-top: 16px; align-items: start; }
+    .forecast-intro { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+    .forecast-period { display: grid; grid-template-columns: 54px 1fr; gap: 12px; padding: 14px; border: 1px solid var(--line); border-radius: 8px; background: #fbfdff; }
+    .forecast-icon { width: 54px; height: 54px; display: grid; place-items: center; border-radius: 50%; background: #fff3ad; font-size: 30px; }
+    .forecast-period h3 { margin: 0 0 5px; font-size: 14px; }
+    .forecast-period p { margin: 0; color: var(--muted); font-size: 13px; }
+    .extended-forecast { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 12px; }
+    .forecast-day { padding: 13px 10px; border: 1px solid var(--line); border-radius: 8px; text-align: center; background: #fff; }
+    .forecast-day span { display: block; font-size: 25px; }
+    .forecast-day strong { display: block; margin-top: 5px; font-size: 13px; }
+    .forecast-day small { color: var(--muted); }
+    .forecast-source { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; }
+    #forecastLiveRegion > h3, #forecastLiveRegion #wx > h3 { clear: both; margin: 14px 0 6px; font-size: 14px; }
+    #forecastLiveRegion h4 { margin: 4px 0; }
+    #forecastLiveRegion label { color: var(--muted) !important; font-size: 11px !important; }
+    #forecastLiveRegion > img, #forecastLiveRegion #wx > img { float: left; width: 52px; height: 52px; object-fit: cover; margin: 0 12px 12px 0; border-radius: 7px; }
+    #forecastLiveRegion .forecast_box { display: inline-block; vertical-align: top; width: calc(25% - 8px); min-width: 105px; margin: 8px 8px 0 0; padding: 10px 7px; border: 1px solid var(--line); border-radius: 8px; text-align: center; background: #fff; font-size: 12px; }
+    #forecastLiveRegion .forecast_box img { width: 48px; height: 48px; object-fit: cover; border-radius: 6px; }
+    .field-stack { display: grid; gap: 16px; }
+    .field-details p { color: var(--muted); }
+    .detail-links, .external-links { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 14px; }
+    .photo-preview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+    .photo-preview { min-height: 94px; border-radius: 7px; overflow: hidden; position: relative; background: linear-gradient(#c6e6f6 55%, #887d51 56%); }
+    .photo-preview::after { content: "View gallery ↗"; position: absolute; z-index: 4; left: 7px; right: 7px; bottom: 7px; padding: 5px 7px; border-radius: 4px; color: #fff; background: rgba(4, 36, 66, .82); font-size: 10px; font-weight: 850; text-align: center; }
+    .photo-preview img { transition: transform .2s ease; }
+    .photo-preview:hover img { transform: scale(1.035); }
+    .field-open-status { display: inline-flex; align-items: center; gap: 7px; color: var(--green); font-weight: 900; font-size: 12px; }
+    .field-open-status::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px rgba(32,149,75,.13); }
+
+    /* DASHBOARD */
+    .dashboard-wrap { max-width: var(--max); margin: auto; display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 74px); }
+    .dash-side { background: var(--navy); color: #fff; padding: 18px 12px; }
+    .dash-side button { width: 100%; border: 0; background: transparent; color: rgba(255,255,255,.82); text-align: left; padding: 10px 12px; border-radius: 5px; font-size: 13px; }
+    .dash-side button:hover, .dash-side button.active { background: rgba(255,255,255,.12); color: #fff; }
+    .dash-main { padding: 30px 24px 42px; min-width: 0; }
+    .dash-title-row { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+    .dash-title-row h1 { margin: 0; }
+    .stat-grid { margin-top: 20px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .stat { padding: 18px; }
+    .stat span { display: block; text-transform: uppercase; color: var(--blue); font-size: 10px; font-weight: 900; }
+    .stat strong { display: block; font-size: 20px; margin-top: 12px; }
+    .stat small { color: var(--muted); }
+    .dash-two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+    .panel { padding: 18px; }
+    .panel h2 { margin: 0 0 12px; font-size: 15px; text-transform: uppercase; }
+    .mini-list { list-style: none; padding: 0; margin: 0; }
+    .mini-list li { padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+    .mini-list li:last-child { border-bottom: 0; }
+    .quick-actions { display: grid; grid-template-columns: repeat(5, 1fr); gap: 9px; }
+    .quick-action { border: 1px solid var(--line); background: #fff; border-radius: 7px; padding: 14px 8px; text-align: center; color: var(--blue); font-size: 11px; font-weight: 850; }
+    .dash-placeholder { text-align: center; padding: 80px 30px; color: var(--muted); }
+
+    /* NEWS */
+    .tabs { display: flex; gap: 24px; border-bottom: 1px solid var(--line); margin-bottom: 18px; }
+    .tabs button { border: 0; background: transparent; padding: 12px 0; font-weight: 900; color: var(--muted); border-bottom: 3px solid transparent; }
+    .tabs button.active { color: var(--blue); border-bottom-color: var(--blue); }
+    .news-layout { display: grid; grid-template-columns: 1fr 260px; gap: 16px; }
+    .news-list { padding: 4px 18px; }
+    .news-item { display: grid; grid-template-columns: 150px 1fr; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+    .news-item:last-child { border-bottom: 0; }
+    .news-thumb { border-radius: 7px; overflow: hidden; background: linear-gradient(#c6e6f6 55%, #887d51 56%); min-height: 95px; position: relative; }
+    .news-thumb::before { content: "✈"; position: absolute; z-index: 0; font-size: 56px; left: 42px; top: 17px; transform: rotate(-12deg); color: var(--navy); }
+    .news-item h2 { font-size: 15px; margin: 0; }
+    .news-item p { font-size: 13px; color: var(--muted); margin: 7px 0; }
+    .news-item small { color: var(--muted); }
+    .archive { padding: 16px; }
+    .archive details { border-bottom: 1px solid var(--line); padding: 9px 0; }
+    .archive summary { cursor: pointer; font-weight: 850; font-size: 13px; }
+    .archive ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size: 12px; }
+    .newsletter-mode .latest-panel { display: none; }
+    .newsletter-mode .newsletter-panel { display: block !important; }
+    .newsletter-panel { display: none; }
+
+    .site-footer { background: var(--navy); color: rgba(255,255,255,.85); margin-top: auto; }
+    .footer-inner { max-width: var(--max); margin: auto; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 14px; font-size: 12px; }
+    .footer-links { display: flex; gap: 16px; flex-wrap: wrap; }
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 100;
+      background: #102c46;
+      color: #fff;
+      padding: 13px 16px;
+      border-radius: 7px;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: .22s ease;
+    }
+    .toast.show { opacity: 1; transform: none; }
+
+    .modal-backdrop { display: none; position: fixed; inset: 0; z-index: 90; background: rgba(2,20,35,.64); padding: 22px; align-items: center; justify-content: center; }
+    .modal-backdrop.open { display: flex; }
+    .modal { width: min(520px, 100%); background: white; border-radius: 12px; box-shadow: 0 26px 80px rgba(0,0,0,.25); overflow: hidden; }
+    .modal-head { padding: 18px 20px; background: var(--navy); color: #fff; display: flex; justify-content: space-between; align-items: center; }
+    .modal-head h2 { margin: 0; font-size: 18px; }
+    .modal-head button { border: 0; background: transparent; color: #fff; font-size: 22px; }
+    .modal-body { padding: 22px; }
+    .form-grid { display: grid; gap: 13px; }
+    label { font-size: 12px; font-weight: 850; color: var(--ink); }
+    input, select { width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 11px 12px; margin-top: 5px; color: var(--ink); background: #fff; }
+
+    @media (max-width: 980px) {
+      .desktop-nav { display: none; }
+      .mobile-toggle { display: block; }
+      .header-inner { min-height: 68px; }
+      .hero-inner { grid-template-columns: 1fr; min-height: 590px; }
+      .hero-photo { object-position: 62% center; }
+      .hero-shade { background: linear-gradient(180deg, rgba(236,246,253,.97) 0%, rgba(236,246,253,.88) 45%, rgba(236,246,253,.25) 74%, rgba(236,246,253,.05) 100%); }
+      .hero-copy { position: relative; z-index: 2; }
+      .hero-art { margin-top: -20px; }
+      .quick-grid { grid-template-columns: repeat(2, 1fr); }
+      .quick-card { border-right: 0; border-bottom: 1px solid var(--line); }
+      .events-layout, .membership-grid, .live-field-grid, .field-second-row, .news-layout { grid-template-columns: 1fr; }
+      .membership-card.featured { transform: none; }
+      .extended-forecast { grid-template-columns: repeat(2, 1fr); }
+      .dashboard-wrap { grid-template-columns: 1fr; }
+      .dash-side { display: flex; gap: 5px; overflow-x: auto; padding: 10px; }
+      .dash-side button { width: auto; white-space: nowrap; }
+      .stat-grid { grid-template-columns: 1fr 1fr; }
+      .quick-actions { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .brand { min-width: 0; }
+      .brand-copy small { display: none; }
+      .content-wrap { padding: 22px 14px 34px; }
+      .hero-inner { padding: 36px 16px; min-height: 540px; }
+      .hero-copy h1 { font-size: 42px; }
+      .hero-art { height: 250px; }
+      .feature-banner { padding: 0 14px; }
+      .feature-banner-inner { align-items: flex-start; flex-wrap: wrap; }
+      .feature-banner-inner .btn { width: 100%; }
+      .quick-grid { grid-template-columns: 1fr; padding-inline: 14px; }
+      .event-row { grid-template-columns: 52px 1fr; }
+      .event-row .btn { grid-column: 2; justify-self: start; }
+      .featured-event, .news-item { grid-template-columns: 1fr; }
+      .trust-row, .forecast-intro, .dash-two { grid-template-columns: 1fr; }
+      .photo-preview-grid { grid-template-columns: 1fr; }
+      .extended-forecast { grid-template-columns: 1fr 1fr; }
+      .card-head, .forecast-source { align-items: flex-start; flex-direction: column; }
+      .camera-actions { justify-content: flex-start; }
+      .footer-inner { align-items: flex-start; flex-direction: column; }
+      .stat-grid { grid-template-columns: 1fr; }
+      .dash-main { padding: 22px 14px 36px; }
+      .dash-title-row { display: block; }
+      .mobile-nav.open { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#home" data-route="home" aria-label="Livermore Flying Electrons home">
+        <span class="brand-mark-stack" aria-hidden="true">
+          <img class="brand-logo-image external-image" data-external-image src="images/lfe-logo.svg" alt="" />
+          <svg class="brand-mark" viewBox="0 0 100 100">
+            <g fill="none" stroke-linecap="round">
+              <ellipse cx="50" cy="50" rx="41" ry="14" stroke="#ffc400" stroke-width="4" transform="rotate(32 50 50)"/>
+              <ellipse cx="50" cy="50" rx="41" ry="14" stroke="#fff" stroke-width="4" transform="rotate(-32 50 50)"/>
+              <ellipse cx="50" cy="50" rx="41" ry="14" stroke="#ff4b3e" stroke-width="4" transform="rotate(90 50 50)"/>
+            </g>
+            <circle cx="50" cy="50" r="7" fill="#ffc400"/>
+            <path d="M25 54 L75 46 L59 55 L50 70 L45 57 Z" fill="#fff" stroke="#052f55" stroke-width="2"/>
+          </svg>
+        </span>
+        <span class="brand-copy"><strong>LIVERMORE<br>FLYING ELECTRONS</strong><small>AMA Charter #157</small></span>
+      </a>
+
+      <nav class="desktop-nav" aria-label="Primary navigation">
+        <button class="nav-link active" data-route="home">Home</button>
+        <button class="nav-link" data-route="news">About</button>
+        <button class="nav-link" data-route="membership">Fly With Us</button>
+        <button class="nav-link" data-route="events">Events</button>
+        <button class="nav-link" data-route="membership">Members</button>
+        <button class="nav-link" data-route="field">Field Info</button>
+        <a class="nav-link" href="https://www.lferc.com/PhotoAlbum/" target="_blank" rel="noopener noreferrer">Photos ↗</a>
+        <button class="login-btn" data-route="dashboard">Member Login</button>
+      </nav>
+      <button class="mobile-toggle" id="mobileToggle" aria-expanded="false" aria-controls="mobileNav">Menu</button>
+    </div>
+    <nav class="mobile-nav" id="mobileNav" aria-label="Mobile navigation">
+      <button class="nav-link" data-route="home">Home</button>
+      <button class="nav-link" data-route="news">About / News</button>
+      <button class="nav-link" data-route="membership">Fly With Us</button>
+      <button class="nav-link" data-route="events">Events</button>
+      <button class="nav-link" data-route="field">Field Info</button>
+      <a class="nav-link" href="https://www.lferc.com/PhotoAlbum/" target="_blank" rel="noopener noreferrer">Photo Gallery ↗</a>
+      <button class="login-btn" data-route="dashboard">Member Login</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- HOME -->
+    <section id="view-home" class="view active" aria-labelledby="home-title">
+      <div class="hero">
+        <img id="heroPhoto" class="hero-photo external-image" data-external-image src="images/hero-warbird.webp" alt="Radio-control warbird flying over the Livermore hills" />
+        <div class="hero-shade" aria-hidden="true"></div>
+        <div class="hero-inner">
+          <div class="hero-copy">
+            <h1 id="home-title">Welcome to the Livermore Flying Electrons</h1>
+            <p>A community of pilots and builders promoting the hobby, craft, and joy of radio-control aviation.</p>
+            <div class="hero-actions">
+              <button class="btn btn-primary" data-route="field">Visit Our Field</button>
+              <button class="btn btn-secondary" data-route="membership">Learn to Fly</button>
+            </div>
+          </div>
+          <div class="hero-art" aria-label="Radio-control warbird image with illustrated fallback">
+            <svg viewBox="0 0 820 360" role="img">
+              <defs>
+                <linearGradient id="wing" x1="0" x2="1"><stop stop-color="#35424c"/><stop offset=".55" stop-color="#6d7273"/><stop offset="1" stop-color="#1b2935"/></linearGradient>
+                <linearGradient id="fuselage" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#69727a"/><stop offset="1" stop-color="#29333b"/></linearGradient>
+              </defs>
+              <g transform="translate(70 32) rotate(-8 360 155)">
+                <ellipse cx="208" cy="168" rx="74" ry="74" fill="none" stroke="#c52d2d" stroke-width="13" opacity=".82"/>
+                <ellipse cx="208" cy="168" rx="54" ry="54" fill="none" stroke="#f5d2c8" stroke-width="5" opacity=".8"/>
+                <path d="M170 158 L90 88 L113 78 L245 133 Z" fill="url(#wing)" stroke="#101b25" stroke-width="4"/>
+                <path d="M265 146 L610 62 L650 88 L392 179 Z" fill="url(#wing)" stroke="#101b25" stroke-width="5"/>
+                <path d="M270 170 L625 260 L648 230 L390 145 Z" fill="url(#wing)" stroke="#101b25" stroke-width="5"/>
+                <path d="M186 145 C258 117 406 118 600 143 C629 148 650 162 644 177 C638 192 604 195 568 193 C424 184 308 186 208 191 C175 193 154 179 156 164 C158 155 170 149 186 145 Z" fill="url(#fuselage)" stroke="#111d27" stroke-width="5"/>
+                <path d="M598 143 L700 113 L716 126 L641 169 Z" fill="#48545e" stroke="#111d27" stroke-width="5"/>
+                <path d="M621 146 L676 80 L696 86 L659 166 Z" fill="#414c55" stroke="#111d27" stroke-width="4"/>
+                <path d="M241 137 C284 110 345 115 372 139 L351 151 L270 152 Z" fill="#1d3e55" stroke="#101b25" stroke-width="4"/>
+                <path d="M170 156 L132 151 L112 167 L145 179 L173 176 Z" fill="#c5292f" stroke="#671315" stroke-width="4"/>
+                <circle cx="170" cy="166" r="29" fill="#ca2b2b" stroke="#701116" stroke-width="5"/>
+                <path d="M140 166 H200" stroke="#121b22" stroke-width="7"/>
+                <path d="M170 136 V196" stroke="#121b22" stroke-width="7"/>
+                <g transform="translate(510 151)">
+                  <circle r="29" fill="#f3f4f2" stroke="#172330" stroke-width="3"/>
+                  <path d="M-30 0 H30 M0 -30 V30" stroke="#172330" stroke-width="7"/>
+                  <circle r="11" fill="#172330"/>
+                </g>
+                <path d="M592 148 l42 7 l-34 12 z" fill="#ffc400"/>
+                <path d="M610 83 l34 4 l-18 11 z" fill="#ffc400"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="feature-banner">
+        <div class="feature-banner-inner">
+          <svg class="feature-icon" viewBox="0 0 100 100" aria-hidden="true">
+            <ellipse cx="50" cy="50" rx="40" ry="13" fill="none" stroke="#ffc400" stroke-width="5" transform="rotate(35 50 50)"/>
+            <ellipse cx="50" cy="50" rx="40" ry="13" fill="none" stroke="#fff" stroke-width="5" transform="rotate(-35 50 50)"/>
+            <circle cx="50" cy="50" r="7" fill="#ffc400"/>
+          </svg>
+          <div class="feature-copy"><h2>Warbirds Over Livermore</h2><p>August 21–22, 2026 · Friday Night Fly & Saturday Airshow</p></div>
+          <button class="btn btn-primary" data-route="events">Event Details</button>
+        </div>
+      </div>
+      <div class="quick-grid">
+        <button class="quick-card link-button" data-route="membership"><span class="icon">♙</span><strong>Become a Member</strong><small>Join our community</small></button>
+        <button class="quick-card link-button" data-route="membership"><span class="icon">✈</span><strong>Learn to Fly</strong><small>Instruction & training</small></button>
+        <button class="quick-card link-button" data-route="field"><span class="icon">⌁</span><strong>Field Conditions</strong><small>Weather & cameras</small></button>
+        <button class="quick-card link-button" data-route="events"><span class="icon">▣</span><strong>Events Calendar</strong><small>See what is coming up</small></button>
+        <button class="quick-card link-button" data-route="news"><span class="icon">♡</span><strong>Support LFE</strong><small>Donations & sponsors</small></button>
+        <a class="quick-card link-button" href="https://www.lferc.com/PhotoAlbum/" target="_blank" rel="noopener noreferrer"><span class="icon">▧</span><strong>Photo Gallery</strong><small>Browse current club photos ↗</small></a>
+      </div>
+    </section>
+
+    <!-- EVENTS -->
+    <section id="view-events" class="view" aria-labelledby="events-title">
+      <div class="content-wrap" id="eventsRoot">
+        <h1 class="page-title" id="events-title">Events Calendar</h1>
+        <p class="page-kicker">Club gatherings, contests, work days, and public flying events.</p>
+        <div class="toolbar">
+          <div class="segmented" aria-label="Events view">
+            <button id="listViewBtn">List View</button><button id="calendarViewBtn" class="active">Calendar View</button>
+          </div>
+        </div>
+        <div class="events-layout">
+          <div class="card event-list">
+            <h2 class="section-title">Upcoming Events</h2>
+            <div id="eventRows"></div>
+            <div style="padding:14px 4px 5px"><button class="link-button" id="allEventsBtn">View full calendar →</button></div>
+          </div>
+          <div class="calendar-column">
+            <div class="card calendar-card">
+              <div class="calendar-head"><button class="link-button" id="prevMonth">‹</button><strong id="calendarMonth">August 2026</strong><button class="link-button" id="nextMonth">›</button></div>
+              <div class="calendar-grid" id="calendarGrid"></div>
+            </div>
+            <div class="card featured-event">
+              <div class="plane-thumb media-frame"><img class="external-image" data-external-image src="images/event-warbirds-2026.webp" alt="Warbird aircraft at the Livermore flying field" /></div>
+              <div><span class="metric-label">Featured Event</span><h2 style="font-size:16px;margin:7px 0 4px">Warbirds Over Livermore</h2><small style="color:var(--muted)">August 21–22, 2026</small><p style="font-size:13px;color:var(--muted)">Join us for two days of epic warbirds, pilots, vendors, and flying.</p><button class="link-button" data-event="Warbirds Over Livermore">More info →</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MEMBERSHIP -->
+    <section id="view-membership" class="view" aria-labelledby="membership-title">
+      <div class="content-wrap">
+        <h1 class="page-title" id="membership-title">Membership</h1>
+        <p class="page-kicker">Join a welcoming community of pilots, builders, and enthusiasts.</p>
+        <div class="membership-grid">
+          <article class="card membership-card">
+            <h2>Regular Member</h2><div class="age">19+ years</div><div class="price">$125 <small>/ year</small></div>
+            <ul class="benefits"><li>AMA membership included</li><li>Field access</li><li>Voting privileges</li><li>Club newsletter</li><li>Member events & discounts</li></ul>
+            <button class="btn btn-primary join-btn" data-plan="Regular Member — $125/year">Join / Renew</button>
+          </article>
+          <article class="card membership-card featured">
+            <h2>Junior Member</h2><div class="age">9–18 years</div><div class="price">$25 <small>/ year</small></div>
+            <ul class="benefits"><li>AMA membership included</li><li>Field access with adult</li><li>Training program</li><li>Club newsletter</li><li>Member events & discounts</li></ul>
+            <button class="btn btn-primary join-btn" data-plan="Junior Member — $25/year">Join / Renew</button>
+          </article>
+          <article class="card membership-card">
+            <h2>Family Member</h2><div class="age">Immediate family</div><div class="price">$25 <small>/ year</small></div>
+            <ul class="benefits"><li>AMA membership included</li><li>Same household</li><li>Field access</li><li>Club newsletter</li><li>Member events & discounts</li></ul>
+            <button class="btn btn-primary join-btn" data-plan="Family Member — $25/year">Join / Renew</button>
+          </article>
+        </div>
+        <div class="card trust-row">
+          <div><strong>▣ Secure Payments</strong><span>Pay online with credit card</span></div>
+          <div><strong>♢ AMA Insurance</strong><span>Included with membership</span></div>
+          <div><strong>◷ Easy Renewal</strong><span>Manage online anytime</span></div>
+        </div>
+        <p style="text-align:center;color:var(--muted);font-size:13px">Questions? Contact our Membership Chair at membership@lferc.com</p>
+      </div>
+    </section>
+
+    <!-- FIELD -->
+    <section id="view-field" class="view" aria-labelledby="field-title">
+      <div class="content-wrap">
+        <h1 class="page-title" id="field-title">Field Information & Conditions</h1>
+        <p class="page-kicker">Live webcam and WeatherLink conditions for the Livermore Flying Electrons field.</p>
+
+        <div class="live-field-grid">
+          <article class="card live-card">
+            <div class="card-head">
+              <div>
+                <div class="metric-label">Live Field Camera</div>
+                <h2>LFERC Webcam Feed</h2>
+                <p>The stream is supplied directly by the current LFERC camera server.</p>
+              </div>
+              <div class="camera-actions">
+                <button class="btn btn-secondary btn-sm" id="reloadCamera" type="button">Reload feed</button>
+                <a class="btn btn-blue btn-sm" href="http://webcam.lferc.com:8094/videostream.cgi?user=visitor&amp;pwd=visitor1&amp;rate=14" target="_blank" rel="noopener noreferrer">Open camera ↗</a>
+              </div>
+            </div>
+            <div class="live-webcam-frame" id="liveWebcamFrame">
+              <img class="webcam-fallback external-image" data-external-image src="images/field-camera-north-pits.jpg" alt="Fallback view of the Livermore Flying Electrons field" />
+              <img class="webcam-stream" id="liveWebcam" src="http://webcam.lferc.com:8094/videostream.cgi?user=visitor&amp;pwd=visitor1&amp;rate=14" name="image1" width="640" height="480" alt="Live webcam stream from the Livermore Flying Electrons field" />
+              <span class="live-badge">LIVE CAMERA</span>
+            </div>
+            <div class="camera-note" id="cameraProtocolNote">
+              <span aria-hidden="true">⚠</span>
+              <span><strong>HTTP camera feed:</strong> secure HTTPS hosting may block the embedded stream as mixed content. The “Open camera” button remains available as a fallback.</span>
+            </div>
+          </article>
+
+          <aside class="card weatherlink-card">
+            <div class="metric-label">Live Weather Station</div>
+            <h2 style="margin:4px 0 12px;font-size:20px">Weather Conditions — LFERC Field</h2>
+            <div class="weatherlink-shell">
+              <iframe src="https://www.weatherlink.com/embeddablePage/show/8665dcd0f7804c50b1b489a52a0df45b/slim" width="338" height="535" frameborder="0" loading="lazy" referrerpolicy="no-referrer" title="Live WeatherLink conditions for the LFERC field"></iframe>
+            </div>
+            <div class="external-links">
+              <a class="link-button" href="https://www.weatherlink.com/embeddablePage/show/8665dcd0f7804c50b1b489a52a0df45b/slim" target="_blank" rel="noopener noreferrer">Open WeatherLink ↗</a>
+              <a class="link-button" href="https://www.lferc.com/weather.php" target="_blank" rel="noopener noreferrer">Original weather page ↗</a>
+            </div>
+          </aside>
+        </div>
+
+        <div class="field-second-row">
+          <article class="card forecast-card">
+            <div class="card-head">
+              <div>
+                <div class="metric-label">National Weather Service</div>
+                <h2>LFERC Airfield Forecast</h2>
+                <p id="forecastUpdated">Standalone snapshot supplied August 5, 2026 at 12:27 PM PDT.</p>
+              </div>
+              <a class="btn btn-secondary btn-sm" href="https://forecast.weather.gov/MapClick.php?lat=37.73&amp;lon=-121.74" target="_blank" rel="noopener noreferrer">NWS point forecast ↗</a>
+            </div>
+
+            <div id="forecastLiveRegion">
+              <div class="forecast-intro">
+                <section class="forecast-period">
+                  <div class="forecast-icon" aria-hidden="true">☀</div>
+                  <div><h3>This Afternoon</h3><p>Sunny, with a high near 94. West wind 6 to 9 mph.</p></div>
+                </section>
+                <section class="forecast-period">
+                  <div class="forecast-icon" aria-hidden="true">◐</div>
+                  <div><h3>Tonight</h3><p>Mostly clear, with a low around 58. West southwest wind 3 to 8 mph.</p></div>
+                </section>
+              </div>
+              <div class="extended-forecast" aria-label="Extended forecast">
+                <div class="forecast-day"><span aria-hidden="true">🌤</span><strong>Thursday</strong><small>Sunny<br>94° / 60°</small></div>
+                <div class="forecast-day"><span aria-hidden="true">☀</span><strong>Friday</strong><small>Sunny<br>99° / 64°</small></div>
+                <div class="forecast-day"><span aria-hidden="true">☀</span><strong>Saturday</strong><small>Sunny<br>102° / 65°</small></div>
+                <div class="forecast-day"><span aria-hidden="true">☀</span><strong>Sunday</strong><small>Sunny<br>100° / 62°</small></div>
+              </div>
+            </div>
+            <div class="forecast-source">
+              <span>When deployed on lferc.com, this panel attempts to refresh from <code>NWSForecast.php?inc=xml</code>. The supplied forecast remains as the standalone fallback.</span>
+              <span class="field-open-status">Field resources online</span>
+            </div>
+          </article>
+
+          <div class="field-stack">
+            <aside class="card field-details">
+              <div class="metric-label">Field Details</div>
+              <h2 style="margin:4px 0 8px;font-size:20px">Livermore Flying Electrons Field</h2>
+              <p>4455 Raymond Road<br>Livermore, CA 94550</p>
+              <div class="detail-links">
+                <a class="link-button" href="https://www.google.com/maps/search/?api=1&amp;query=4455+Raymond+Road+Livermore+CA+94550" target="_blank" rel="noopener noreferrer">Google Maps directions ↗</a>
+                <a class="link-button" href="https://www.lferc.com/clubinfo.php" target="_blank" rel="noopener noreferrer">Club information & rules ↗</a>
+                <a class="link-button" href="https://www.modelaircraft.org/club/livermore-flying-electrons" target="_blank" rel="noopener noreferrer">AMA club listing ↗</a>
+              </div>
+            </aside>
+
+            <aside class="card photo-card">
+              <div class="metric-label">Current Site Photos</div>
+              <h2 style="margin:4px 0 5px;font-size:20px">Club Photo Album</h2>
+              <p style="margin:0;color:var(--muted);font-size:13px">These previews use the local image set and link through to the club’s existing photo gallery.</p>
+              <div class="photo-preview-grid">
+                <a class="photo-preview media-frame" href="https://www.lferc.com/PhotoAlbum/" target="_blank" rel="noopener noreferrer" aria-label="Open the LFERC photo gallery">
+                  <img class="external-image" data-external-image src="images/event-warbirds-2026.webp" alt="Warbird aircraft photo preview" />
+                </a>
+                <a class="photo-preview media-frame" href="https://lferc.com/PhotoAlbum/picture.php?/1084/category/33" target="_blank" rel="noopener noreferrer" aria-label="Open an LFERC featured photo">
+                  <img class="external-image" data-external-image src="images/news-warbirds-volunteer.webp" alt="Club event photo preview" />
+                </a>
+                <a class="photo-preview media-frame" href="https://www.lferc.com/PhotoAlbum/picture.php?/646/category/25" target="_blank" rel="noopener noreferrer" aria-label="Open another LFERC featured photo">
+                  <img class="external-image" data-external-image src="images/news-field-maintenance.webp" alt="Field activity photo preview" />
+                </a>
+              </div>
+              <div class="external-links"><a class="btn btn-primary btn-sm" href="https://www.lferc.com/PhotoAlbum/" target="_blank" rel="noopener noreferrer">Browse all club photos ↗</a></div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DASHBOARD -->
+    <section id="view-dashboard" class="view" aria-labelledby="dashboard-title">
+      <div class="dashboard-wrap">
+        <aside class="dash-side" aria-label="Member dashboard navigation">
+          <button class="active dash-nav" data-panel="overview">▦ Dashboard</button>
+          <button class="dash-nav" data-panel="profile">♙ My Profile</button>
+          <button class="dash-nav" data-panel="membership">▣ My Membership</button>
+          <button class="dash-nav" data-panel="events">▤ My Events</button>
+          <button class="dash-nav" data-panel="documents">▧ My Documents</button>
+          <button class="dash-nav" data-panel="directory">⌕ Member Directory</button>
+          <button class="dash-nav" data-panel="training">✈ Flight Training</button>
+          <button class="dash-nav" data-panel="resources">⌂ Club Resources</button>
+          <button data-route="home">◉ Sign Out</button>
+        </aside>
+        <div class="dash-main">
+          <div id="dash-overview" class="dash-panel">
+            <div class="dash-title-row"><div><h1 class="page-title" id="dashboard-title">Welcome Back, Jay!</h1><p class="page-kicker">Your ACMS-style member portal overview.</p></div><small>Member Since: 2018</small></div>
+            <div class="stat-grid">
+              <div class="card stat"><span>Membership Status</span><strong style="color:var(--green)">Active</strong><small>Expires: 12/31/2026</small></div>
+              <div class="card stat"><span>AMA Membership</span><strong style="color:var(--green)">Active</strong><small># 1234567</small></div>
+              <div class="card stat"><span>Next Renewal</span><strong style="color:var(--blue)">$125.00</strong><small>Due: 12/31/2026</small></div>
+              <div class="card stat"><span>Account Balance</span><strong style="color:var(--green)">$0.00</strong><small>No outstanding balance</small></div>
+            </div>
+            <div class="dash-two">
+              <div class="card panel"><h2>Upcoming Events</h2><ul class="mini-list"><li><strong>Aug 21</strong> — Warbirds Friday Night Fly</li><li><strong>Aug 22</strong> — Warbirds Airshow</li><li><strong>Sep 12</strong> — Monthly Cookout & Fun Fly</li></ul><button class="link-button" data-route="events" style="margin-top:12px">View all events →</button></div>
+              <div class="card panel"><h2>Recent Club News</h2><ul class="mini-list"><li>Warbirds Airshow — Volunteer Sign-Up</li><li>July Newsletter Now Available</li><li>Field Maintenance Day — Thank You!</li></ul><button class="link-button" data-route="news" style="margin-top:12px">View all news →</button></div>
+            </div>
+            <div class="card panel" style="margin-top:14px"><h2>Quick Actions</h2><div class="quick-actions"><button class="quick-action" data-toast="Renewal flow started">Renew Membership</button><button class="quick-action" data-route="events">Register for Event</button><button class="quick-action" data-panel-target="profile">Update Profile</button><button class="quick-action" data-panel-target="documents">View Documents</button><button class="quick-action" data-toast="Officer contact directory opened">Contact Officers</button></div></div>
+          </div>
+          <div id="dash-placeholder" class="card dash-placeholder" style="display:none"><h2 id="placeholderTitle">My Profile</h2><p>This single-file prototype demonstrates navigation to the selected member data view.</p><button class="btn btn-blue" data-panel-target="overview">Return to Dashboard</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- NEWS -->
+    <section id="view-news" class="view" aria-labelledby="news-title">
+      <div class="content-wrap" id="newsRoot">
+        <h1 class="page-title" id="news-title">News & Newsletter Archive</h1>
+        <p class="page-kicker">Club announcements, event recaps, maintenance updates, and newsletters.</p>
+        <div class="tabs"><button id="latestTab" class="active">Latest News</button><button id="newsletterTab">Newsletter Archive</button></div>
+        <div class="latest-panel">
+          <div class="news-layout">
+            <div class="card news-list">
+              <article class="news-item"><div class="news-thumb media-frame"><img class="external-image" data-external-image src="images/news-warbirds-volunteer.webp" alt="Warbirds event volunteers and aircraft" /></div><div><h2>Warbirds Over Livermore — Volunteer Sign-Up</h2><p>We need volunteers to help make our biggest event of the year a success. Sign up for parking, pilot registration, food service, and more.</p><small>Jul 15, 2026 · </small><button class="link-button" data-toast="Article opened">Read More →</button></div></article>
+              <article class="news-item"><div class="news-thumb media-frame"><img class="external-image" data-external-image src="images/news-july-newsletter.webp" alt="Livermore Flying Electrons July newsletter cover" /></div><div><h2>July Newsletter Now Available</h2><p>Check out the latest edition of the newsletter for club updates, event recaps, and member spotlights.</p><small>Jul 5, 2026 · </small><button class="link-button" id="openNewsletter">Read More →</button></div></article>
+              <article class="news-item"><div class="news-thumb media-frame" style="background:linear-gradient(#b8daf0 48%,#6d8c49 49%)"><img class="external-image" data-external-image src="images/news-field-maintenance.webp" alt="Club members maintaining the flying field" /></div><div><h2>Field Maintenance Day — Thank You!</h2><p>Thanks to everyone who came out to help with field maintenance day. The field looks great!</p><small>Jun 28, 2026 · </small><button class="link-button" data-toast="Article opened">Read More →</button></div></article>
+            </div>
+            <aside class="card archive"><h2 class="section-title">Newsletter Archive</h2><div id="archiveSummary"></div></aside>
+          </div>
+        </div>
+        <div class="newsletter-panel">
+          <div class="card" style="padding:20px"><h2 style="margin-top:0">Newsletter Archive</h2><p style="color:var(--muted)">Select an edition to preview it in this prototype.</p><div id="newsletterCards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px"></div></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner"><div>© 2026 Livermore Flying Electrons · AMA Charter #157</div><div class="footer-links"><a href="https://www.lferc.com/weather.php" target="_blank" rel="noopener noreferrer">Weather & Cameras</a><a href="https://www.lferc.com/PhotoAlbum/" target="_blank" rel="noopener noreferrer">Photo Gallery</a><span>Contact Us</span><span>f ◉ ▶</span></div></div>
+  </footer>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="modal-backdrop" id="joinModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal"><div class="modal-head"><h2 id="modalTitle">Membership Application</h2><button id="closeModal" aria-label="Close">×</button></div><div class="modal-body"><form id="joinForm" class="form-grid"><label>Membership plan<input id="planInput" readonly></label><label>Full name<input required placeholder="Your name"></label><label>Email<input type="email" required placeholder="you@example.com"></label><label>AMA number (optional)<input placeholder="1234567"></label><button class="btn btn-primary" type="submit">Continue to Secure Checkout</button></form></div></div>
+</div>
+
+<script>
+(() => {
+  const routes = ['home','events','membership','field','dashboard','news'];
+  const routeButtons = [...document.querySelectorAll('[data-route]')];
+  const views = Object.fromEntries(routes.map(r => [r, document.getElementById('view-' + r)]));
+  const mobileNav = document.getElementById('mobileNav');
+  const mobileToggle = document.getElementById('mobileToggle');
+  const toast = document.getElementById('toast');
+  let toastTimer;
+
+  function setExternalImageState(img, loaded) {
+    img.classList.toggle('is-loaded', loaded);
+    img.closest('.media-frame')?.classList.toggle('has-image', loaded);
+    if (img.id === 'heroPhoto') document.querySelector('.hero')?.classList.toggle('has-hero-photo', loaded);
+  }
+
+  document.querySelectorAll('[data-external-image]').forEach(img => {
+    const check = () => setExternalImageState(img, img.naturalWidth > 0);
+    img.addEventListener('load', check);
+    img.addEventListener('error', () => setExternalImageState(img, false));
+    if (img.complete) check();
+  });
+
+  function showToast(message) {
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2300);
+  }
+
+  function go(route, pushHash = true) {
+    if (!routes.includes(route)) route = 'home';
+    Object.entries(views).forEach(([name, view]) => view.classList.toggle('active', name === route));
+    document.querySelectorAll('.desktop-nav .nav-link').forEach(b => b.classList.toggle('active', b.dataset.route === route));
+    if (pushHash && location.hash !== '#' + route) history.pushState(null, '', '#' + route);
+    mobileNav.classList.remove('open');
+    mobileToggle.setAttribute('aria-expanded', 'false');
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+
+  routeButtons.forEach(btn => btn.addEventListener('click', e => {
+    if (btn.tagName === 'A') e.preventDefault();
+    go(btn.dataset.route);
+  }));
+  window.addEventListener('popstate', () => go(location.hash.slice(1), false));
+  mobileToggle.addEventListener('click', () => {
+    const open = mobileNav.classList.toggle('open');
+    mobileToggle.setAttribute('aria-expanded', String(open));
+  });
+
+  document.querySelectorAll('[data-toast]').forEach(btn => btn.addEventListener('click', () => showToast(btn.dataset.toast)));
+
+  const events = [
+    {date:'2026-08-21', month:'AUG', day:'21', dow:'FRI', title:'Warbirds Over Livermore — Friday Night Fly', time:'5:00 PM – 9:00 PM', place:'Hal Chesnutt Memorial Field'},
+    {date:'2026-08-22', month:'AUG', day:'22', dow:'SAT', title:'Warbirds Over Livermore Airshow', time:'8:00 AM – 5:00 PM', place:'Hal Chesnutt Memorial Field'},
+    {date:'2026-09-12', month:'SEP', day:'12', dow:'SAT', title:'Monthly Cookout & Fun Fly', time:'10:00 AM – 2:00 PM', place:'Hal Chesnutt Memorial Field'},
+    {date:'2026-09-26', month:'SEP', day:'26', dow:'SAT', title:'Scale Vintage Pattern Contest', time:'9:00 AM – 3:00 PM', place:'Hal Chesnutt Memorial Field'},
+  ];
+  const eventRows = document.getElementById('eventRows');
+  eventRows.innerHTML = events.map(e => `<div class="event-row"><div class="date-tile"><span>${e.month}</span><b>${e.day}</b><span>${e.dow}</span></div><div class="event-copy"><strong>${e.title}</strong><small>${e.time}</small><small>${e.place}</small></div><button class="btn btn-primary btn-sm" data-event="${e.title}">Details</button></div>`).join('');
+  document.addEventListener('click', e => { const target = e.target.closest('[data-event]'); if (target) showToast(target.dataset.event + ' selected'); });
+
+  let currentMonth = new Date(2026, 7, 1);
+  const calendarGrid = document.getElementById('calendarGrid');
+  const calendarMonth = document.getElementById('calendarMonth');
+  const monthFmt = new Intl.DateTimeFormat('en-US', {month:'long', year:'numeric'});
+  function renderCalendar() {
+    const y = currentMonth.getFullYear(), m = currentMonth.getMonth();
+    calendarMonth.textContent = monthFmt.format(currentMonth);
+    const first = new Date(y,m,1).getDay();
+    const days = new Date(y,m+1,0).getDate();
+    const prevDays = new Date(y,m,0).getDate();
+    const cells = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => `<div class="dow">${d}</div>`);
+    for (let i=0;i<42;i++) {
+      let d, muted=false, cellDate;
+      if (i < first) { d = prevDays-first+i+1; muted=true; cellDate = new Date(y,m-1,d); }
+      else if (i >= first+days) { d = i-first-days+1; muted=true; cellDate = new Date(y,m+1,d); }
+      else { d=i-first+1; cellDate=new Date(y,m,d); }
+      const iso = `${cellDate.getFullYear()}-${String(cellDate.getMonth()+1).padStart(2,'0')}-${String(cellDate.getDate()).padStart(2,'0')}`;
+      const hasEvent = events.some(e=>e.date===iso);
+      cells.push(`<div class="day ${muted?'muted':''} ${hasEvent?'has-event':''}" ${hasEvent?`title="Event scheduled"`:''}>${d}${hasEvent?'<br><small>●</small>':''}</div>`);
+    }
+    calendarGrid.innerHTML = cells.join('');
+  }
+  renderCalendar();
+  document.getElementById('prevMonth').addEventListener('click', () => { currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth()-1, 1); renderCalendar(); });
+  document.getElementById('nextMonth').addEventListener('click', () => { currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth()+1, 1); renderCalendar(); });
+  document.getElementById('allEventsBtn').addEventListener('click', () => showToast('Full event calendar displayed'));
+  const eventsRoot = document.getElementById('eventsRoot');
+  const listViewBtn = document.getElementById('listViewBtn');
+  const calendarViewBtn = document.getElementById('calendarViewBtn');
+  listViewBtn.addEventListener('click', () => { eventsRoot.classList.add('event-list-mode'); listViewBtn.classList.add('active'); calendarViewBtn.classList.remove('active'); });
+  calendarViewBtn.addEventListener('click', () => { eventsRoot.classList.remove('event-list-mode'); calendarViewBtn.classList.add('active'); listViewBtn.classList.remove('active'); });
+
+  const joinModal = document.getElementById('joinModal');
+  const planInput = document.getElementById('planInput');
+  document.querySelectorAll('.join-btn').forEach(btn => btn.addEventListener('click', () => { planInput.value = btn.dataset.plan; joinModal.classList.add('open'); }));
+  document.getElementById('closeModal').addEventListener('click', () => joinModal.classList.remove('open'));
+  joinModal.addEventListener('click', e => { if (e.target === joinModal) joinModal.classList.remove('open'); });
+  document.getElementById('joinForm').addEventListener('submit', e => { e.preventDefault(); joinModal.classList.remove('open'); showToast('Application saved — checkout would begin next'); });
+
+  const webcamBaseUrl = 'http://webcam.lferc.com:8094/videostream.cgi?user=visitor&pwd=visitor1&rate=14';
+  const liveWebcam = document.getElementById('liveWebcam');
+  const liveWebcamFrame = document.getElementById('liveWebcamFrame');
+  const reloadCamera = document.getElementById('reloadCamera');
+  const cameraProtocolNote = document.getElementById('cameraProtocolNote');
+
+  if (liveWebcam && liveWebcamFrame) {
+    liveWebcam.addEventListener('load', () => liveWebcamFrame.classList.remove('stream-error'));
+    liveWebcam.addEventListener('error', () => {
+      liveWebcamFrame.classList.add('stream-error');
+      showToast('Live camera unavailable — showing the local fallback');
+    });
+  }
+  reloadCamera?.addEventListener('click', () => {
+    liveWebcamFrame?.classList.remove('stream-error');
+    liveWebcam.src = webcamBaseUrl + '&_=' + Date.now();
+    showToast('Reloading the live camera feed');
+  });
+  if (location.protocol !== 'https:') cameraProtocolNote?.classList.add('nonsecure-host');
+
+  async function loadHostedLfercForecast() {
+    if (!/(^|\.)lferc\.com$/i.test(location.hostname)) return;
+    try {
+      const response = await fetch('/NWSForecast.php?inc=xml', {method: 'POST', cache: 'no-store'});
+      if (!response.ok) throw new Error('Forecast request failed');
+      const xml = new DOMParser().parseFromString(await response.text(), 'application/xml');
+      const forecastHtml = xml.querySelector('wxdata')?.textContent;
+      if (!forecastHtml) throw new Error('Forecast data missing');
+      document.getElementById('forecastLiveRegion').innerHTML = forecastHtml;
+      document.getElementById('forecastUpdated').textContent = 'Live forecast loaded from the LFERC National Weather Service feed.';
+    } catch (error) {
+      console.warn('Using standalone forecast fallback:', error);
+    }
+  }
+  loadHostedLfercForecast();
+
+  const dashOverview = document.getElementById('dash-overview');
+  const dashPlaceholder = document.getElementById('dash-placeholder');
+  const placeholderTitle = document.getElementById('placeholderTitle');
+  const panelNames = {overview:'Dashboard', profile:'My Profile', membership:'My Membership', events:'My Events', documents:'My Documents', directory:'Member Directory', training:'Flight Training', resources:'Club Resources'};
+  function showDashPanel(panel) {
+    document.querySelectorAll('.dash-nav').forEach(b => b.classList.toggle('active', b.dataset.panel === panel));
+    if (panel === 'overview') { dashOverview.style.display='block'; dashPlaceholder.style.display='none'; }
+    else { dashOverview.style.display='none'; dashPlaceholder.style.display='block'; placeholderTitle.textContent=panelNames[panel] || 'Member View'; }
+  }
+  document.querySelectorAll('.dash-nav').forEach(btn => btn.addEventListener('click', () => showDashPanel(btn.dataset.panel)));
+  document.querySelectorAll('[data-panel-target]').forEach(btn => btn.addEventListener('click', () => showDashPanel(btn.dataset.panelTarget)));
+
+  const years = [2026,2025,2024,2023,2022,2021,2020,2019,2018,2017];
+  document.getElementById('archiveSummary').innerHTML = years.map((y,i) => `<details ${i===0?'open':''}><summary>${y} (${i===0?8:12})</summary><ul><li>January edition</li><li>Spring field update</li><li>Summer events issue</li></ul></details>`).join('');
+  document.getElementById('newsletterCards').innerHTML = years.slice(0,6).map((y,i) => `<button class="card" style="padding:18px;text-align:left;border:1px solid var(--line)" data-toast="${y} newsletter selected"><span class="metric-label">${y}</span><strong style="display:block;margin-top:8px">Issue ${String(8-i).padStart(2,'0')}</strong><small style="color:var(--muted)">View newsletter preview →</small></button>`).join('');
+  const newsRoot = document.getElementById('newsRoot');
+  const latestTab = document.getElementById('latestTab');
+  const newsletterTab = document.getElementById('newsletterTab');
+  function newsMode(newsletter) {
+    newsRoot.classList.toggle('newsletter-mode', newsletter);
+    newsletterTab.classList.toggle('active', newsletter);
+    latestTab.classList.toggle('active', !newsletter);
+  }
+  latestTab.addEventListener('click', () => newsMode(false));
+  newsletterTab.addEventListener('click', () => newsMode(true));
+  document.getElementById('openNewsletter').addEventListener('click', () => newsMode(true));
+
+  const initial = routes.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'home';
+  go(initial, false);
+})();
+</script>
+</body>
+</html>

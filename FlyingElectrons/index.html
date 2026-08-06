@@ -4,30 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#062f55" />
-  <meta name="description" content="Livermore Flying Electrons club website prototype with events, membership, field conditions, member dashboard, and newsletter archive." />
-  <meta property="og:title" content="Livermore Flying Electrons" />
-  <meta property="og:description" content="Radio-control aviation, events, membership, field information, and club news in Livermore, California." />
-  <meta property="og:type" content="website" />
-  <meta property="og:image" content="images/social-preview.jpg" />
-  <link rel="icon" href="images/favicon.svg" type="image/svg+xml" />
   <title>Livermore Flying Electrons — ACMS Club Website Prototype</title>
-  <!--
-    EXTERNAL IMAGE ASSET MANIFEST
-    Place this HTML next to an "images" directory containing:
-      images/lfe-logo.svg
-      images/hero-warbird.webp
-      images/event-warbirds-2026.webp
-      images/field-camera-north-pits.jpg
-      images/field-camera-runway.jpg
-      images/news-warbirds-volunteer.webp
-      images/news-july-newsletter.webp
-      images/news-field-maintenance.webp
-      images/favicon.svg
-      images/social-preview.jpg
-
-    Every in-page image has a built-in CSS/SVG fallback, so the prototype
-    remains usable while assets are missing or still being prepared.
-  -->
   <style>
     :root {
       --navy: #052f55;
@@ -62,26 +39,6 @@
     a { color: inherit; }
     svg { display: block; }
 
-    .external-image {
-      display: block;
-      opacity: 0;
-      transition: opacity .24s ease;
-    }
-    .external-image.is-loaded { opacity: 1; }
-    .media-frame { position: relative; overflow: hidden; }
-    .media-frame > .external-image {
-      position: absolute;
-      inset: 0;
-      z-index: 2;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .media-frame > .external-image.contain { object-fit: contain; }
-    .brand-mark-stack { width: 48px; height: 48px; flex: 0 0 auto; position: relative; }
-    .brand-mark-stack .brand-mark { width: 100%; height: 100%; }
-    .brand-logo-image { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; object-fit: contain; }
-
     .app-shell { min-height: 100vh; display: flex; flex-direction: column; }
     .site-header {
       position: sticky;
@@ -107,6 +64,7 @@
       min-width: 270px;
       text-decoration: none;
     }
+    .brand-mark { width: 48px; height: 48px; flex: 0 0 auto; }
     .brand-copy { line-height: 1.05; }
     .brand-copy strong { display: block; font-size: 15px; letter-spacing: .02em; }
     .brand-copy small { display: block; margin-top: 5px; font-size: 10px; opacity: .84; text-transform: uppercase; letter-spacing: .09em; }
@@ -175,24 +133,6 @@
       overflow: hidden;
       border-bottom: 1px solid var(--line);
     }
-    .hero-photo {
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center center;
-    }
-    .hero-shade {
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      pointer-events: none;
-      background: linear-gradient(90deg, rgba(236,246,253,.98) 0%, rgba(236,246,253,.88) 34%, rgba(236,246,253,.28) 61%, rgba(236,246,253,.04) 100%);
-    }
-    .hero.has-hero-photo .hero-art { opacity: 0; }
-    .hero.has-hero-photo::before { opacity: 0; }
     .hero-inner {
       max-width: var(--max);
       min-height: 430px;
@@ -209,7 +149,7 @@
     .hero-copy h1 { margin: 0 0 14px; font-size: clamp(40px, 6vw, 64px); line-height: .96; letter-spacing: -.045em; text-transform: uppercase; }
     .hero-copy p { margin: 0 0 24px; font-size: 18px; color: #223c54; max-width: 390px; }
     .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-    .hero-art { position: relative; height: 300px; transition: opacity .24s ease; }
+    .hero-art { position: relative; height: 300px; }
     .hero-art svg { width: 100%; height: 100%; filter: drop-shadow(0 22px 16px rgba(0,0,0,.24)); }
     .hero::before {
       content: "";
@@ -221,7 +161,6 @@
         linear-gradient(195deg, transparent 0 34%, rgba(25,72,96,.3) 34.5% 51%, transparent 51.5%),
         linear-gradient(#b7d5e8, #93bdce 55%, #767c65 56%, #a48d59 100%);
       opacity: .85;
-      z-index: 0;
     }
     .feature-banner {
       max-width: var(--max);
@@ -314,7 +253,7 @@
     .camera-shot { aspect-ratio: 16/9; border-radius: 7px; position: relative; overflow: hidden; background: linear-gradient(#bfe1f2 0 54%, #69754e 55% 61%, #b99a67 62%); }
     .camera-shot.runway { background: linear-gradient(#c8e6f4 0 52%, #a7a36d 53% 62%, #7d755f 63% 100%); }
     .camera-shot::before { content: ""; position: absolute; left: 8%; right: 8%; bottom: 22%; height: 8%; background: #665d4d; transform: perspective(100px) rotateX(4deg); }
-    .live-badge { position: absolute; left: 8px; bottom: 7px; z-index: 3; font-size: 10px; font-weight: 900; color: #fff; background: rgba(198,42,42,.9); padding: 3px 5px; border-radius: 3px; }
+    .camera-shot::after { content: "LIVE"; position: absolute; left: 8px; bottom: 7px; font-size: 10px; font-weight: 900; color: #fff; background: rgba(198,42,42,.9); padding: 3px 5px; border-radius: 3px; }
     .field-details { padding: 18px; }
     .field-details p { color: var(--muted); }
     .detail-links { display: grid; gap: 10px; }
@@ -351,7 +290,7 @@
     .news-item { display: grid; grid-template-columns: 150px 1fr; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line); }
     .news-item:last-child { border-bottom: 0; }
     .news-thumb { border-radius: 7px; overflow: hidden; background: linear-gradient(#c6e6f6 55%, #887d51 56%); min-height: 95px; position: relative; }
-    .news-thumb::before { content: "✈"; position: absolute; z-index: 0; font-size: 56px; left: 42px; top: 17px; transform: rotate(-12deg); color: var(--navy); }
+    .news-thumb::before { content: "✈"; position: absolute; font-size: 56px; left: 42px; top: 17px; transform: rotate(-12deg); color: var(--navy); }
     .news-item h2 { font-size: 15px; margin: 0; }
     .news-item p { font-size: 13px; color: var(--muted); margin: 7px 0; }
     .news-item small { color: var(--muted); }
@@ -400,8 +339,6 @@
       .mobile-toggle { display: block; }
       .header-inner { min-height: 68px; }
       .hero-inner { grid-template-columns: 1fr; min-height: 590px; }
-      .hero-photo { object-position: 62% center; }
-      .hero-shade { background: linear-gradient(180deg, rgba(236,246,253,.97) 0%, rgba(236,246,253,.88) 45%, rgba(236,246,253,.25) 74%, rgba(236,246,253,.05) 100%); }
       .hero-copy { position: relative; z-index: 2; }
       .hero-art { margin-top: -20px; }
       .quick-grid { grid-template-columns: repeat(2, 1fr); }
@@ -443,18 +380,15 @@
   <header class="site-header">
     <div class="header-inner">
       <a class="brand" href="#home" data-route="home" aria-label="Livermore Flying Electrons home">
-        <span class="brand-mark-stack" aria-hidden="true">
-          <img class="brand-logo-image external-image" data-external-image src="images/lfe-logo.svg" alt="" />
-          <svg class="brand-mark" viewBox="0 0 100 100">
-            <g fill="none" stroke-linecap="round">
-              <ellipse cx="50" cy="50" rx="41" ry="14" stroke="#ffc400" stroke-width="4" transform="rotate(32 50 50)"/>
-              <ellipse cx="50" cy="50" rx="41" ry="14" stroke="#fff" stroke-width="4" transform="rotate(-32 50 50)"/>
-              <ellipse cx="50" cy="50" rx="41" ry="14" stroke="#ff4b3e" stroke-width="4" transform="rotate(90 50 50)"/>
-            </g>
-            <circle cx="50" cy="50" r="7" fill="#ffc400"/>
-            <path d="M25 54 L75 46 L59 55 L50 70 L45 57 Z" fill="#fff" stroke="#052f55" stroke-width="2"/>
-          </svg>
-        </span>
+        <svg class="brand-mark" viewBox="0 0 100 100" aria-hidden="true">
+          <g fill="none" stroke-linecap="round">
+            <ellipse cx="50" cy="50" rx="41" ry="14" stroke="#ffc400" stroke-width="4" transform="rotate(32 50 50)"/>
+            <ellipse cx="50" cy="50" rx="41" ry="14" stroke="#fff" stroke-width="4" transform="rotate(-32 50 50)"/>
+            <ellipse cx="50" cy="50" rx="41" ry="14" stroke="#ff4b3e" stroke-width="4" transform="rotate(90 50 50)"/>
+          </g>
+          <circle cx="50" cy="50" r="7" fill="#ffc400"/>
+          <path d="M25 54 L75 46 L59 55 L50 70 L45 57 Z" fill="#fff" stroke="#052f55" stroke-width="2"/>
+        </svg>
         <span class="brand-copy"><strong>LIVERMORE<br>FLYING ELECTRONS</strong><small>AMA Charter #157</small></span>
       </a>
 
@@ -483,8 +417,6 @@
     <!-- HOME -->
     <section id="view-home" class="view active" aria-labelledby="home-title">
       <div class="hero">
-        <img id="heroPhoto" class="hero-photo external-image" data-external-image src="images/hero-warbird.webp" alt="Radio-control warbird flying over the Livermore hills" />
-        <div class="hero-shade" aria-hidden="true"></div>
         <div class="hero-inner">
           <div class="hero-copy">
             <h1 id="home-title">Welcome to the Livermore Flying Electrons</h1>
@@ -494,7 +426,7 @@
               <button class="btn btn-secondary" data-route="membership">Learn to Fly</button>
             </div>
           </div>
-          <div class="hero-art" aria-label="Radio-control warbird image with illustrated fallback">
+          <div class="hero-art" aria-label="Stylized radio-control warbird illustration">
             <svg viewBox="0 0 820 360" role="img">
               <defs>
                 <linearGradient id="wing" x1="0" x2="1"><stop stop-color="#35424c"/><stop offset=".55" stop-color="#6d7273"/><stop offset="1" stop-color="#1b2935"/></linearGradient>
@@ -568,7 +500,7 @@
               <div class="calendar-grid" id="calendarGrid"></div>
             </div>
             <div class="card featured-event">
-              <div class="plane-thumb media-frame"><img class="external-image" data-external-image src="images/event-warbirds-2026.webp" alt="Warbird aircraft at the Livermore flying field" /></div>
+              <div class="plane-thumb"></div>
               <div><span class="metric-label">Featured Event</span><h2 style="font-size:16px;margin:7px 0 4px">Warbirds Over Livermore</h2><small style="color:var(--muted)">August 21–22, 2026</small><p style="font-size:13px;color:var(--muted)">Join us for two days of epic warbirds, pilots, vendors, and flying.</p><button class="link-button" data-event="Warbirds Over Livermore">More info →</button></div>
             </div>
           </div>
@@ -631,10 +563,7 @@
         <div class="field-lower">
           <div class="card webcams">
             <h2 class="section-title">Field Webcams</h2>
-            <div class="camera-grid">
-              <div><strong style="font-size:11px">NORTH PITS</strong><div class="camera-shot media-frame"><img class="external-image" data-external-image src="images/field-camera-north-pits.jpg" alt="North pits field camera view" /><span class="live-badge">LIVE</span></div></div>
-              <div><strong style="font-size:11px">RUNWAY VIEW</strong><div class="camera-shot runway media-frame"><img class="external-image" data-external-image src="images/field-camera-runway.jpg" alt="Runway field camera view" /><span class="live-badge">LIVE</span></div></div>
-            </div>
+            <div class="camera-grid"><div><strong style="font-size:11px">NORTH PITS</strong><div class="camera-shot"></div></div><div><strong style="font-size:11px">RUNWAY VIEW</strong><div class="camera-shot runway"></div></div></div>
           </div>
           <div class="card field-details">
             <h2 class="section-title">Field Details</h2>
@@ -688,9 +617,9 @@
         <div class="latest-panel">
           <div class="news-layout">
             <div class="card news-list">
-              <article class="news-item"><div class="news-thumb media-frame"><img class="external-image" data-external-image src="images/news-warbirds-volunteer.webp" alt="Warbirds event volunteers and aircraft" /></div><div><h2>Warbirds Over Livermore — Volunteer Sign-Up</h2><p>We need volunteers to help make our biggest event of the year a success. Sign up for parking, pilot registration, food service, and more.</p><small>Jul 15, 2026 · </small><button class="link-button" data-toast="Article opened">Read More →</button></div></article>
-              <article class="news-item"><div class="news-thumb media-frame"><img class="external-image" data-external-image src="images/news-july-newsletter.webp" alt="Livermore Flying Electrons July newsletter cover" /></div><div><h2>July Newsletter Now Available</h2><p>Check out the latest edition of the newsletter for club updates, event recaps, and member spotlights.</p><small>Jul 5, 2026 · </small><button class="link-button" id="openNewsletter">Read More →</button></div></article>
-              <article class="news-item"><div class="news-thumb media-frame" style="background:linear-gradient(#b8daf0 48%,#6d8c49 49%)"><img class="external-image" data-external-image src="images/news-field-maintenance.webp" alt="Club members maintaining the flying field" /></div><div><h2>Field Maintenance Day — Thank You!</h2><p>Thanks to everyone who came out to help with field maintenance day. The field looks great!</p><small>Jun 28, 2026 · </small><button class="link-button" data-toast="Article opened">Read More →</button></div></article>
+              <article class="news-item"><div class="news-thumb"></div><div><h2>Warbirds Over Livermore — Volunteer Sign-Up</h2><p>We need volunteers to help make our biggest event of the year a success. Sign up for parking, pilot registration, food service, and more.</p><small>Jul 15, 2026 · </small><button class="link-button" data-toast="Article opened">Read More →</button></div></article>
+              <article class="news-item"><div class="news-thumb"></div><div><h2>July Newsletter Now Available</h2><p>Check out the latest edition of the newsletter for club updates, event recaps, and member spotlights.</p><small>Jul 5, 2026 · </small><button class="link-button" id="openNewsletter">Read More →</button></div></article>
+              <article class="news-item"><div class="news-thumb" style="background:linear-gradient(#b8daf0 48%,#6d8c49 49%)"></div><div><h2>Field Maintenance Day — Thank You!</h2><p>Thanks to everyone who came out to help with field maintenance day. The field looks great!</p><small>Jun 28, 2026 · </small><button class="link-button" data-toast="Article opened">Read More →</button></div></article>
             </div>
             <aside class="card archive"><h2 class="section-title">Newsletter Archive</h2><div id="archiveSummary"></div></aside>
           </div>
@@ -721,19 +650,6 @@
   const mobileToggle = document.getElementById('mobileToggle');
   const toast = document.getElementById('toast');
   let toastTimer;
-
-  function setExternalImageState(img, loaded) {
-    img.classList.toggle('is-loaded', loaded);
-    img.closest('.media-frame')?.classList.toggle('has-image', loaded);
-    if (img.id === 'heroPhoto') document.querySelector('.hero')?.classList.toggle('has-hero-photo', loaded);
-  }
-
-  document.querySelectorAll('[data-external-image]').forEach(img => {
-    const check = () => setExternalImageState(img, img.naturalWidth > 0);
-    img.addEventListener('load', check);
-    img.addEventListener('error', () => setExternalImageState(img, false));
-    if (img.complete) check();
-  });
 
   function showToast(message) {
     toast.textContent = message;
