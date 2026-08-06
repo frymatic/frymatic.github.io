@@ -4,7 +4,40 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#062f55" />
+  <meta name="description" content="Livermore Flying Electrons club website prototype with events, membership, field conditions, member dashboard, and newsletter archive." />
+  <meta property="og:title" content="Livermore Flying Electrons" />
+  <meta property="og:description" content="Radio-control aviation, events, membership, field information, and club news in Livermore, California." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="images/social-preview.jpg" />
+  <link rel="icon" href="images/favicon.svg" type="image/svg+xml" />
   <title>Livermore Flying Electrons — ACMS Club Website Prototype</title>
+  <!--
+    EXTERNAL IMAGE ASSET MANIFEST
+    Place this HTML next to an "images" directory containing:
+      images/lfe-logo.svg
+      images/hero-warbird.webp
+      images/event-warbirds-2026.webp
+      images/field-camera-north-pits.jpg
+      images/field-camera-runway.jpg
+      images/news-warbirds-volunteer.webp
+      images/news-july-newsletter.webp
+      images/news-field-maintenance.webp
+      images/favicon.svg
+      images/social-preview.jpg
+
+    Every in-page image has a built-in CSS/SVG fallback, so the prototype
+    remains usable while assets are missing or still being prepared.
+
+    LIVE EXTERNAL SERVICES USED BY THE FIELD PAGE
+      Webcam: http://webcam.lferc.com:8094/videostream.cgi
+      Weather station: WeatherLink embeddable page
+      Forecast: static standalone fallback plus LFERC NWSForecast.php support
+      Photos: https://www.lferc.com/PhotoAlbum/
+
+    Note: the webcam is currently served over plain HTTP. Browsers may block
+    it when this file is deployed from an HTTPS website. A direct-open link
+    and local fallback image are included for that case.
+  -->
   <style>
     :root {
       --navy: #052f55;
@@ -39,6 +72,26 @@
     a { color: inherit; }
     svg { display: block; }
 
+    .external-image {
+      display: block;
+      opacity: 0;
+      transition: opacity .24s ease;
+    }
+    .external-image.is-loaded { opacity: 1; }
+    .media-frame { position: relative; overflow: hidden; }
+    .media-frame > .external-image {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .media-frame > .external-image.contain { object-fit: contain; }
+    .brand-mark-stack { width: 48px; height: 48px; flex: 0 0 auto; position: relative; }
+    .brand-mark-stack .brand-mark { width: 100%; height: 100%; }
+    .brand-logo-image { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; object-fit: contain; }
+
     .app-shell { min-height: 100vh; display: flex; flex-direction: column; }
     .site-header {
       position: sticky;
@@ -64,7 +117,6 @@
       min-width: 270px;
       text-decoration: none;
     }
-    .brand-mark { width: 48px; height: 48px; flex: 0 0 auto; }
     .brand-copy { line-height: 1.05; }
     .brand-copy strong { display: block; font-size: 15px; letter-spacing: .02em; }
     .brand-copy small { display: block; margin-top: 5px; font-size: 10px; opacity: .84; text-transform: uppercase; letter-spacing: .09em; }
@@ -72,6 +124,7 @@
     .desktop-nav { display: flex; align-items: center; gap: 4px; margin-left: auto; }
     .nav-link {
       border: 0;
+      text-decoration: none;
       background: transparent;
       color: rgba(255,255,255,.84);
       padding: 10px 9px;
@@ -133,6 +186,24 @@
       overflow: hidden;
       border-bottom: 1px solid var(--line);
     }
+    .hero-photo {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+    }
+    .hero-shade {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background: linear-gradient(90deg, rgba(236,246,253,.98) 0%, rgba(236,246,253,.88) 34%, rgba(236,246,253,.28) 61%, rgba(236,246,253,.04) 100%);
+    }
+    .hero.has-hero-photo .hero-art { opacity: 0; }
+    .hero.has-hero-photo::before { opacity: 0; }
     .hero-inner {
       max-width: var(--max);
       min-height: 430px;
@@ -149,7 +220,7 @@
     .hero-copy h1 { margin: 0 0 14px; font-size: clamp(40px, 6vw, 64px); line-height: .96; letter-spacing: -.045em; text-transform: uppercase; }
     .hero-copy p { margin: 0 0 24px; font-size: 18px; color: #223c54; max-width: 390px; }
     .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-    .hero-art { position: relative; height: 300px; }
+    .hero-art { position: relative; height: 300px; transition: opacity .24s ease; }
     .hero-art svg { width: 100%; height: 100%; filter: drop-shadow(0 22px 16px rgba(0,0,0,.24)); }
     .hero::before {
       content: "";
@@ -161,6 +232,7 @@
         linear-gradient(195deg, transparent 0 34%, rgba(25,72,96,.3) 34.5% 51%, transparent 51.5%),
         linear-gradient(#b7d5e8, #93bdce 55%, #767c65 56%, #a48d59 100%);
       opacity: .85;
+      z-index: 0;
     }
     .feature-banner {
       max-width: var(--max);
@@ -183,7 +255,7 @@
     .feature-copy { flex: 1; }
     .feature-copy h2 { margin: 0; font-size: 22px; }
     .feature-copy p { margin: 3px 0 0; opacity: .9; }
-    .quick-grid { max-width: var(--max); margin: auto; padding: 28px 20px 48px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+    .quick-grid { max-width: var(--max); margin: auto; padding: 28px 20px 48px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
     .quick-card { padding: 22px 14px; text-align: center; border-right: 1px solid var(--line); }
     .quick-card:last-child { border-right: 0; }
     .quick-card .icon { font-size: 26px; }
@@ -235,28 +307,54 @@
     .trust-row span { display: block; color: var(--muted); font-size: 12px; }
 
     /* FIELD */
-    .field-grid { display: grid; grid-template-columns: 1fr 1.05fr .9fr; gap: 14px; }
-    .metric-card { padding: 18px; min-height: 180px; }
     .metric-label { font-size: 11px; font-weight: 900; color: var(--blue); text-transform: uppercase; letter-spacing: .05em; }
-    .weather-main { display: flex; align-items: center; justify-content: space-between; margin-top: 13px; }
-    .weather-main .temp { font-size: 58px; line-height: 1; font-weight: 900; letter-spacing: -.05em; }
-    .sun { width: 54px; height: 54px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 0 12px rgba(255,196,0,.12); }
-    .wind-compass { width: 98px; height: 98px; margin: 10px auto 8px; border: 1px solid var(--line); border-radius: 50%; position: relative; background: repeating-radial-gradient(circle, transparent 0 16px, #edf2f7 17px); }
-    .wind-compass::before { content: ""; position: absolute; left: 46px; top: 16px; width: 6px; height: 46px; background: var(--navy); clip-path: polygon(50% 0, 100% 100%, 50% 80%, 0 100%); transform: rotate(225deg); transform-origin: 50% 100%; }
-    .status-open { margin: 18px 0 12px; color: var(--green); font-size: 30px; font-weight: 950; }
-    .status-list { list-style: none; padding: 0; margin: 0; font-size: 13px; }
-    .status-list li { margin: 7px 0; }
-    .status-list li::before { content: "✓"; color: var(--green); margin-right: 8px; font-weight: 900; }
-    .field-lower { display: grid; grid-template-columns: 1.6fr .8fr; gap: 14px; margin-top: 14px; }
-    .webcams { padding: 14px; }
-    .camera-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .camera-shot { aspect-ratio: 16/9; border-radius: 7px; position: relative; overflow: hidden; background: linear-gradient(#bfe1f2 0 54%, #69754e 55% 61%, #b99a67 62%); }
-    .camera-shot.runway { background: linear-gradient(#c8e6f4 0 52%, #a7a36d 53% 62%, #7d755f 63% 100%); }
-    .camera-shot::before { content: ""; position: absolute; left: 8%; right: 8%; bottom: 22%; height: 8%; background: #665d4d; transform: perspective(100px) rotateX(4deg); }
-    .camera-shot::after { content: "LIVE"; position: absolute; left: 8px; bottom: 7px; font-size: 10px; font-weight: 900; color: #fff; background: rgba(198,42,42,.9); padding: 3px 5px; border-radius: 3px; }
-    .field-details { padding: 18px; }
+    .live-field-grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(300px, .55fr); gap: 16px; align-items: start; }
+    .live-card, .weatherlink-card, .forecast-card, .field-details, .photo-card { padding: 18px; }
+    .card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; margin-bottom: 12px; }
+    .card-head h2 { margin: 3px 0 0; font-size: 20px; }
+    .card-head p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+    .camera-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .live-webcam-frame { position: relative; aspect-ratio: 4 / 3; border-radius: 8px; overflow: hidden; background: linear-gradient(#bfe1f2 0 54%, #69754e 55% 61%, #b99a67 62%); }
+    .live-webcam-frame::before { content: ""; position: absolute; z-index: 0; left: 8%; right: 8%; bottom: 22%; height: 8%; background: #665d4d; transform: perspective(100px) rotateX(4deg); }
+    .webcam-fallback, .webcam-stream { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .webcam-fallback { z-index: 1; }
+    .webcam-stream { z-index: 2; opacity: 1; transition: opacity .25s ease; background: #dbeaf6; }
+    .live-webcam-frame.stream-error .webcam-stream { opacity: 0; }
+    .live-badge { position: absolute; left: 10px; bottom: 9px; z-index: 4; font-size: 10px; font-weight: 900; color: #fff; background: rgba(198,42,42,.92); padding: 4px 7px; border-radius: 4px; letter-spacing: .05em; }
+    .camera-note { display: flex; align-items: flex-start; gap: 9px; margin-top: 12px; padding: 10px 12px; border-radius: 7px; background: #fff8dc; color: #6d5310; font-size: 12px; }
+    .camera-note strong { color: #4c3908; }
+    .weatherlink-card { text-align: center; }
+    .weatherlink-shell { display: flex; justify-content: center; overflow: hidden; border-radius: 8px; background: #f8fafc; min-height: 535px; }
+    .weatherlink-shell iframe { display: block; width: 338px; max-width: 100%; height: 535px; border: 0; }
+    .weatherlink-card .external-links { justify-content: center; }
+    .field-second-row { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(280px, .7fr); gap: 16px; margin-top: 16px; align-items: start; }
+    .forecast-intro { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+    .forecast-period { display: grid; grid-template-columns: 54px 1fr; gap: 12px; padding: 14px; border: 1px solid var(--line); border-radius: 8px; background: #fbfdff; }
+    .forecast-icon { width: 54px; height: 54px; display: grid; place-items: center; border-radius: 50%; background: #fff3ad; font-size: 30px; }
+    .forecast-period h3 { margin: 0 0 5px; font-size: 14px; }
+    .forecast-period p { margin: 0; color: var(--muted); font-size: 13px; }
+    .extended-forecast { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 12px; }
+    .forecast-day { padding: 13px 10px; border: 1px solid var(--line); border-radius: 8px; text-align: center; background: #fff; }
+    .forecast-day span { display: block; font-size: 25px; }
+    .forecast-day strong { display: block; margin-top: 5px; font-size: 13px; }
+    .forecast-day small { color: var(--muted); }
+    .forecast-source { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; }
+    #forecastLiveRegion > h3, #forecastLiveRegion #wx > h3 { clear: both; margin: 14px 0 6px; font-size: 14px; }
+    #forecastLiveRegion h4 { margin: 4px 0; }
+    #forecastLiveRegion label { color: var(--muted) !important; font-size: 11px !important; }
+    #forecastLiveRegion > img, #forecastLiveRegion #wx > img { float: left; width: 52px; height: 52px; object-fit: cover; margin: 0 12px 12px 0; border-radius: 7px; }
+    #forecastLiveRegion .forecast_box { display: inline-block; vertical-align: top; width: calc(25% - 8px); min-width: 105px; margin: 8px 8px 0 0; padding: 10px 7px; border: 1px solid var(--line); border-radius: 8px; text-align: center; background: #fff; font-size: 12px; }
+    #forecastLiveRegion .forecast_box img { width: 48px; height: 48px; object-fit: cover; border-radius: 6px; }
+    .field-stack { display: grid; gap: 16px; }
     .field-details p { color: var(--muted); }
-    .detail-links { display: grid; gap: 10px; }
+    .detail-links, .external-links { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 14px; }
+    .photo-preview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+    .photo-preview { min-height: 94px; border-radius: 7px; overflow: hidden; position: relative; background: linear-gradient(#c6e6f6 55%, #887d51 56%); }
+    .photo-preview::after { content: "View gallery ↗"; position: absolute; z-index: 4; left: 7px; right: 7px; bottom: 7px; padding: 5px 7px; border-radius: 4px; color: #fff; background: rgba(4, 36, 66, .82); font-size: 10px; font-weight: 850; text-align: center; }
+    .photo-preview img { transition: transform .2s ease; }
+    .photo-preview:hover img { transform: scale(1.035); }
+    .field-open-status { display: inline-flex; align-items: center; gap: 7px; color: var(--green); font-weight: 900; font-size: 12px; }
+    .field-open-status::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px rgba(32,149,75,.13); }
 
     /* DASHBOARD */
     .dashboard-wrap { max-width: var(--max); margin: auto; display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 74px); }
@@ -290,7 +388,7 @@
     .news-item { display: grid; grid-template-columns: 150px 1fr; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line); }
     .news-item:last-child { border-bottom: 0; }
     .news-thumb { border-radius: 7px; overflow: hidden; background: linear-gradient(#c6e6f6 55%, #887d51 56%); min-height: 95px; position: relative; }
-    .news-thumb::before { content: "✈"; position: absolute; font-size: 56px; left: 42px; top: 17px; transform: rotate(-12deg); color: var(--navy); }
+    .news-thumb::before { content: "✈"; position: absolute; z-index: 0; font-size: 56px; left: 42px; top: 17px; transform: rotate(-12deg); color: var(--navy); }
     .news-item h2 { font-size: 15px; margin: 0; }
     .news-item p { font-size: 13px; color: var(--muted); margin: 7px 0; }
     .news-item small { color: var(--muted); }
@@ -339,13 +437,15 @@
       .mobile-toggle { display: block; }
       .header-inner { min-height: 68px; }
       .hero-inner { grid-template-columns: 1fr; min-height: 590px; }
+      .hero-photo { object-position: 62% center; }
+      .hero-shade { background: linear-gradient(180deg, rgba(236,246,253,.97) 0%, rgba(236,246,253,.88) 45%, rgba(236,246,253,.25) 74%, rgba(236,246,253,.05) 100%); }
       .hero-copy { position: relative; z-index: 2; }
       .hero-art { margin-top: -20px; }
       .quick-grid { grid-template-columns: repeat(2, 1fr); }
       .quick-card { border-right: 0; border-bottom: 1px solid var(--line); }
-      .events-layout, .membership-grid, .field-grid, .news-layout { grid-template-columns: 1fr; }
+      .events-layout, .membership-grid, .live-field-grid, .field-second-row, .news-layout { grid-template-columns: 1fr; }
       .membership-card.featured { transform: none; }
-      .field-lower { grid-template-columns: 1fr; }
+      .extended-forecast { grid-template-columns: repeat(2, 1fr); }
       .dashboard-wrap { grid-template-columns: 1fr; }
       .dash-side { display: flex; gap: 5px; overflow-x: auto; padding: 10px; }
       .dash-side button { width: auto; white-space: nowrap; }
@@ -366,7 +466,11 @@
       .event-row { grid-template-columns: 52px 1fr; }
       .event-row .btn { grid-column: 2; justify-self: start; }
       .featured-event, .news-item { grid-template-columns: 1fr; }
-      .trust-row, .camera-grid, .dash-two { grid-template-columns: 1fr; }
+      .trust-row, .forecast-intro, .dash-two { grid-template-columns: 1fr; }
+      .photo-preview-grid { grid-template-columns: 1fr; }
+      .extended-forecast { grid-template-columns: 1fr 1fr; }
+      .card-head, .forecast-source { align-items: flex-start; flex-direction: column; }
+      .camera-actions { justify-content: flex-start; }
       .footer-inner { align-items: flex-start; flex-direction: column; }
       .stat-grid { grid-template-columns: 1fr; }
       .dash-main { padding: 22px 14px 36px; }
@@ -380,15 +484,18 @@
   <header class="site-header">
     <div class="header-inner">
       <a class="brand" href="#home" data-route="home" aria-label="Livermore Flying Electrons home">
-        <svg class="brand-mark" viewBox="0 0 100 100" aria-hidden="true">
-          <g fill="none" stroke-linecap="round">
-            <ellipse cx="50" cy="50" rx="41" ry="14" stroke="#ffc400" stroke-width="4" transform="rotate(32 50 50)"/>
-            <ellipse cx="50" cy="50" rx="41" ry="14" stroke="#fff" stroke-width="4" transform="rotate(-32 50 50)"/>
-            <ellipse cx="50" cy="50" rx="41" ry="14" stroke="#ff4b3e" stroke-width="4" transform="rotate(90 50 50)"/>
-          </g>
-          <circle cx="50" cy="50" r="7" fill="#ffc400"/>
-          <path d="M25 54 L75 46 L59 55 L50 70 L45 57 Z" fill="#fff" stroke="#052f55" stroke-width="2"/>
-        </svg>
+        <span class="brand-mark-stack" aria-hidden="true">
+          <img class="brand-logo-image external-image" data-external-image src="images/lfe-logo.svg" alt="" />
+          <svg class="brand-mark" viewBox="0 0 100 100">
+            <g fill="none" stroke-linecap="round">
+              <ellipse cx="50" cy="50" rx="41" ry="14" stroke="#ffc400" stroke-width="4" transform="rotate(32 50 50)"/>
+              <ellipse cx="50" cy="50" rx="41" ry="14" stroke="#fff" stroke-width="4" transform="rotate(-32 50 50)"/>
+              <ellipse cx="50" cy="50" rx="41" ry="14" stroke="#ff4b3e" stroke-width="4" transform="rotate(90 50 50)"/>
+            </g>
+            <circle cx="50" cy="50" r="7" fill="#ffc400"/>
+            <path d="M25 54 L75 46 L59 55 L50 70 L45 57 Z" fill="#fff" stroke="#052f55" stroke-width="2"/>
+          </svg>
+        </span>
         <span class="brand-copy"><strong>LIVERMORE<br>FLYING ELECTRONS</strong><small>AMA Charter #157</small></span>
       </a>
 
@@ -399,6 +506,7 @@
         <button class="nav-link" data-route="events">Events</button>
         <button class="nav-link" data-route="membership">Members</button>
         <button class="nav-link" data-route="field">Field Info</button>
+        <a class="nav-link" href="https://www.lferc.com/PhotoAlbum/" target="_blank" rel="noopener noreferrer">Photos ↗</a>
         <button class="login-btn" data-route="dashboard">Member Login</button>
       </nav>
       <button class="mobile-toggle" id="mobileToggle" aria-expanded="false" aria-controls="mobileNav">Menu</button>
@@ -409,6 +517,7 @@
       <button class="nav-link" data-route="membership">Fly With Us</button>
       <button class="nav-link" data-route="events">Events</button>
       <button class="nav-link" data-route="field">Field Info</button>
+      <a class="nav-link" href="https://www.lferc.com/PhotoAlbum/" target="_blank" rel="noopener noreferrer">Photo Gallery ↗</a>
       <button class="login-btn" data-route="dashboard">Member Login</button>
     </nav>
   </header>
@@ -417,6 +526,8 @@
     <!-- HOME -->
     <section id="view-home" class="view active" aria-labelledby="home-title">
       <div class="hero">
+        <img id="heroPhoto" class="hero-photo external-image" data-external-image src="images/hero-warbird.webp" alt="Radio-control warbird flying over the Livermore hills" />
+        <div class="hero-shade" aria-hidden="true"></div>
         <div class="hero-inner">
           <div class="hero-copy">
             <h1 id="home-title">Welcome to the Livermore Flying Electrons</h1>
@@ -426,7 +537,7 @@
               <button class="btn btn-secondary" data-route="membership">Learn to Fly</button>
             </div>
           </div>
-          <div class="hero-art" aria-label="Stylized radio-control warbird illustration">
+          <div class="hero-art" aria-label="Radio-control warbird image with illustrated fallback">
             <svg viewBox="0 0 820 360" role="img">
               <defs>
                 <linearGradient id="wing" x1="0" x2="1"><stop stop-color="#35424c"/><stop offset=".55" stop-color="#6d7273"/><stop offset="1" stop-color="#1b2935"/></linearGradient>
@@ -475,6 +586,7 @@
         <button class="quick-card link-button" data-route="field"><span class="icon">⌁</span><strong>Field Conditions</strong><small>Weather & cameras</small></button>
         <button class="quick-card link-button" data-route="events"><span class="icon">▣</span><strong>Events Calendar</strong><small>See what is coming up</small></button>
         <button class="quick-card link-button" data-route="news"><span class="icon">♡</span><strong>Support LFE</strong><small>Donations & sponsors</small></button>
+        <a class="quick-card link-button" href="https://www.lferc.com/PhotoAlbum/" target="_blank" rel="noopener noreferrer"><span class="icon">▧</span><strong>Photo Gallery</strong><small>Browse current club photos ↗</small></a>
       </div>
     </section>
 
@@ -500,7 +612,7 @@
               <div class="calendar-grid" id="calendarGrid"></div>
             </div>
             <div class="card featured-event">
-              <div class="plane-thumb"></div>
+              <div class="plane-thumb media-frame"><img class="external-image" data-external-image src="images/event-warbirds-2026.webp" alt="Warbird aircraft at the Livermore flying field" /></div>
               <div><span class="metric-label">Featured Event</span><h2 style="font-size:16px;margin:7px 0 4px">Warbirds Over Livermore</h2><small style="color:var(--muted)">August 21–22, 2026</small><p style="font-size:13px;color:var(--muted)">Join us for two days of epic warbirds, pilots, vendors, and flying.</p><button class="link-button" data-event="Warbirds Over Livermore">More info →</button></div>
             </div>
           </div>
@@ -543,32 +655,109 @@
     <section id="view-field" class="view" aria-labelledby="field-title">
       <div class="content-wrap">
         <h1 class="page-title" id="field-title">Field Information & Conditions</h1>
-        <p class="page-kicker">Live-style prototype data for Hal Chesnutt Memorial Field.</p>
-        <div class="field-grid">
-          <div class="card metric-card">
-            <div class="metric-label">Field Weather · Livermore, CA</div>
-            <div class="weather-main"><div><div class="temp" id="tempDisplay">72°</div><strong id="conditionDisplay">Sunny</strong></div><div class="sun"></div></div>
-            <p style="font-size:12px;color:var(--muted)">Wind: <span id="windDisplay">8 mph WSW</span><br>Humidity: 46%<br>Barometer: 29.92 inHg<br>Updated: <span id="weatherTime">9:15 AM</span></p>
-            <button class="btn btn-secondary btn-sm" id="refreshWeather">Refresh conditions</button>
-          </div>
-          <div class="card metric-card" style="text-align:center">
-            <div class="metric-label" style="text-align:left">Wind Direction</div>
-            <div class="wind-compass"></div><strong style="font-size:28px">WSW</strong><div style="color:var(--muted)">8 mph</div>
-          </div>
-          <div class="card metric-card">
-            <div class="metric-label">Field Status</div><div class="status-open">OPEN</div><div style="font-size:12px;color:var(--muted)">as of <span id="statusTime">9:15 AM</span></div>
-            <ul class="status-list"><li>All runways open</li><li>Caution: crosswind</li><li>Check NOTAMs</li></ul>
-          </div>
+        <p class="page-kicker">Live webcam and WeatherLink conditions for the Livermore Flying Electrons field.</p>
+
+        <div class="live-field-grid">
+          <article class="card live-card">
+            <div class="card-head">
+              <div>
+                <div class="metric-label">Live Field Camera</div>
+                <h2>LFERC Webcam Feed</h2>
+                <p>The stream is supplied directly by the current LFERC camera server.</p>
+              </div>
+              <div class="camera-actions">
+                <button class="btn btn-secondary btn-sm" id="reloadCamera" type="button">Reload feed</button>
+                <a class="btn btn-blue btn-sm" href="http://webcam.lferc.com:8094/videostream.cgi?user=visitor&amp;pwd=visitor1&amp;rate=14" target="_blank" rel="noopener noreferrer">Open camera ↗</a>
+              </div>
+            </div>
+            <div class="live-webcam-frame" id="liveWebcamFrame">
+              <img class="webcam-fallback external-image" data-external-image src="images/field-camera-north-pits.jpg" alt="Fallback view of the Livermore Flying Electrons field" />
+              <img class="webcam-stream" id="liveWebcam" src="http://webcam.lferc.com:8094/videostream.cgi?user=visitor&amp;pwd=visitor1&amp;rate=14" name="image1" width="640" height="480" alt="Live webcam stream from the Livermore Flying Electrons field" />
+              <span class="live-badge">LIVE CAMERA</span>
+            </div>
+            <div class="camera-note" id="cameraProtocolNote">
+              <span aria-hidden="true">⚠</span>
+              <span><strong>HTTP camera feed:</strong> secure HTTPS hosting may block the embedded stream as mixed content. The “Open camera” button remains available as a fallback.</span>
+            </div>
+          </article>
+
+          <aside class="card weatherlink-card">
+            <div class="metric-label">Live Weather Station</div>
+            <h2 style="margin:4px 0 12px;font-size:20px">Weather Conditions — LFERC Field</h2>
+            <div class="weatherlink-shell">
+              <iframe src="https://www.weatherlink.com/embeddablePage/show/8665dcd0f7804c50b1b489a52a0df45b/slim" width="338" height="535" frameborder="0" loading="lazy" referrerpolicy="no-referrer" title="Live WeatherLink conditions for the LFERC field"></iframe>
+            </div>
+            <div class="external-links">
+              <a class="link-button" href="https://www.weatherlink.com/embeddablePage/show/8665dcd0f7804c50b1b489a52a0df45b/slim" target="_blank" rel="noopener noreferrer">Open WeatherLink ↗</a>
+              <a class="link-button" href="https://www.lferc.com/weather.php" target="_blank" rel="noopener noreferrer">Original weather page ↗</a>
+            </div>
+          </aside>
         </div>
-        <div class="field-lower">
-          <div class="card webcams">
-            <h2 class="section-title">Field Webcams</h2>
-            <div class="camera-grid"><div><strong style="font-size:11px">NORTH PITS</strong><div class="camera-shot"></div></div><div><strong style="font-size:11px">RUNWAY VIEW</strong><div class="camera-shot runway"></div></div></div>
-          </div>
-          <div class="card field-details">
-            <h2 class="section-title">Field Details</h2>
-            <strong>Hal Chesnutt Memorial Field</strong><p>5207 Collier Canyon Road<br>Livermore, CA 94551</p>
-            <div class="detail-links"><button class="link-button" data-toast="Map directions opened in prototype">› Google Maps Directions</button><button class="link-button" data-toast="Field rules loaded">› Field Rules</button><button class="link-button" data-toast="Safety guidelines loaded">› Safety Guidelines</button><button class="link-button" data-toast="Noise abatement information loaded">› Noise Abatement Info</button></div>
+
+        <div class="field-second-row">
+          <article class="card forecast-card">
+            <div class="card-head">
+              <div>
+                <div class="metric-label">National Weather Service</div>
+                <h2>LFERC Airfield Forecast</h2>
+                <p id="forecastUpdated">Standalone snapshot supplied August 5, 2026 at 12:27 PM PDT.</p>
+              </div>
+              <a class="btn btn-secondary btn-sm" href="https://forecast.weather.gov/MapClick.php?lat=37.73&amp;lon=-121.74" target="_blank" rel="noopener noreferrer">NWS point forecast ↗</a>
+            </div>
+
+            <div id="forecastLiveRegion">
+              <div class="forecast-intro">
+                <section class="forecast-period">
+                  <div class="forecast-icon" aria-hidden="true">☀</div>
+                  <div><h3>This Afternoon</h3><p>Sunny, with a high near 94. West wind 6 to 9 mph.</p></div>
+                </section>
+                <section class="forecast-period">
+                  <div class="forecast-icon" aria-hidden="true">◐</div>
+                  <div><h3>Tonight</h3><p>Mostly clear, with a low around 58. West southwest wind 3 to 8 mph.</p></div>
+                </section>
+              </div>
+              <div class="extended-forecast" aria-label="Extended forecast">
+                <div class="forecast-day"><span aria-hidden="true">🌤</span><strong>Thursday</strong><small>Sunny<br>94° / 60°</small></div>
+                <div class="forecast-day"><span aria-hidden="true">☀</span><strong>Friday</strong><small>Sunny<br>99° / 64°</small></div>
+                <div class="forecast-day"><span aria-hidden="true">☀</span><strong>Saturday</strong><small>Sunny<br>102° / 65°</small></div>
+                <div class="forecast-day"><span aria-hidden="true">☀</span><strong>Sunday</strong><small>Sunny<br>100° / 62°</small></div>
+              </div>
+            </div>
+            <div class="forecast-source">
+              <span>When deployed on lferc.com, this panel attempts to refresh from <code>NWSForecast.php?inc=xml</code>. The supplied forecast remains as the standalone fallback.</span>
+              <span class="field-open-status">Field resources online</span>
+            </div>
+          </article>
+
+          <div class="field-stack">
+            <aside class="card field-details">
+              <div class="metric-label">Field Details</div>
+              <h2 style="margin:4px 0 8px;font-size:20px">Livermore Flying Electrons Field</h2>
+              <p>4455 Raymond Road<br>Livermore, CA 94550</p>
+              <div class="detail-links">
+                <a class="link-button" href="https://www.google.com/maps/search/?api=1&amp;query=4455+Raymond+Road+Livermore+CA+94550" target="_blank" rel="noopener noreferrer">Google Maps directions ↗</a>
+                <a class="link-button" href="https://www.lferc.com/clubinfo.php" target="_blank" rel="noopener noreferrer">Club information & rules ↗</a>
+                <a class="link-button" href="https://www.modelaircraft.org/club/livermore-flying-electrons" target="_blank" rel="noopener noreferrer">AMA club listing ↗</a>
+              </div>
+            </aside>
+
+            <aside class="card photo-card">
+              <div class="metric-label">Current Site Photos</div>
+              <h2 style="margin:4px 0 5px;font-size:20px">Club Photo Album</h2>
+              <p style="margin:0;color:var(--muted);font-size:13px">These previews use the local image set and link through to the club’s existing photo gallery.</p>
+              <div class="photo-preview-grid">
+                <a class="photo-preview media-frame" href="https://www.lferc.com/PhotoAlbum/" target="_blank" rel="noopener noreferrer" aria-label="Open the LFERC photo gallery">
+                  <img class="external-image" data-external-image src="images/event-warbirds-2026.webp" alt="Warbird aircraft photo preview" />
+                </a>
+                <a class="photo-preview media-frame" href="https://lferc.com/PhotoAlbum/picture.php?/1084/category/33" target="_blank" rel="noopener noreferrer" aria-label="Open an LFERC featured photo">
+                  <img class="external-image" data-external-image src="images/news-warbirds-volunteer.webp" alt="Club event photo preview" />
+                </a>
+                <a class="photo-preview media-frame" href="https://www.lferc.com/PhotoAlbum/picture.php?/646/category/25" target="_blank" rel="noopener noreferrer" aria-label="Open another LFERC featured photo">
+                  <img class="external-image" data-external-image src="images/news-field-maintenance.webp" alt="Field activity photo preview" />
+                </a>
+              </div>
+              <div class="external-links"><a class="btn btn-primary btn-sm" href="https://www.lferc.com/PhotoAlbum/" target="_blank" rel="noopener noreferrer">Browse all club photos ↗</a></div>
+            </aside>
           </div>
         </div>
       </div>
@@ -617,9 +806,9 @@
         <div class="latest-panel">
           <div class="news-layout">
             <div class="card news-list">
-              <article class="news-item"><div class="news-thumb"></div><div><h2>Warbirds Over Livermore — Volunteer Sign-Up</h2><p>We need volunteers to help make our biggest event of the year a success. Sign up for parking, pilot registration, food service, and more.</p><small>Jul 15, 2026 · </small><button class="link-button" data-toast="Article opened">Read More →</button></div></article>
-              <article class="news-item"><div class="news-thumb"></div><div><h2>July Newsletter Now Available</h2><p>Check out the latest edition of the newsletter for club updates, event recaps, and member spotlights.</p><small>Jul 5, 2026 · </small><button class="link-button" id="openNewsletter">Read More →</button></div></article>
-              <article class="news-item"><div class="news-thumb" style="background:linear-gradient(#b8daf0 48%,#6d8c49 49%)"></div><div><h2>Field Maintenance Day — Thank You!</h2><p>Thanks to everyone who came out to help with field maintenance day. The field looks great!</p><small>Jun 28, 2026 · </small><button class="link-button" data-toast="Article opened">Read More →</button></div></article>
+              <article class="news-item"><div class="news-thumb media-frame"><img class="external-image" data-external-image src="images/news-warbirds-volunteer.webp" alt="Warbirds event volunteers and aircraft" /></div><div><h2>Warbirds Over Livermore — Volunteer Sign-Up</h2><p>We need volunteers to help make our biggest event of the year a success. Sign up for parking, pilot registration, food service, and more.</p><small>Jul 15, 2026 · </small><button class="link-button" data-toast="Article opened">Read More →</button></div></article>
+              <article class="news-item"><div class="news-thumb media-frame"><img class="external-image" data-external-image src="images/news-july-newsletter.webp" alt="Livermore Flying Electrons July newsletter cover" /></div><div><h2>July Newsletter Now Available</h2><p>Check out the latest edition of the newsletter for club updates, event recaps, and member spotlights.</p><small>Jul 5, 2026 · </small><button class="link-button" id="openNewsletter">Read More →</button></div></article>
+              <article class="news-item"><div class="news-thumb media-frame" style="background:linear-gradient(#b8daf0 48%,#6d8c49 49%)"><img class="external-image" data-external-image src="images/news-field-maintenance.webp" alt="Club members maintaining the flying field" /></div><div><h2>Field Maintenance Day — Thank You!</h2><p>Thanks to everyone who came out to help with field maintenance day. The field looks great!</p><small>Jun 28, 2026 · </small><button class="link-button" data-toast="Article opened">Read More →</button></div></article>
             </div>
             <aside class="card archive"><h2 class="section-title">Newsletter Archive</h2><div id="archiveSummary"></div></aside>
           </div>
@@ -632,7 +821,7 @@
   </main>
 
   <footer class="site-footer">
-    <div class="footer-inner"><div>© 2026 Livermore Flying Electrons · AMA Charter #157</div><div class="footer-links"><span>Privacy Policy</span><span>Terms of Use</span><span>Contact Us</span><span>f ◉ ▶</span></div></div>
+    <div class="footer-inner"><div>© 2026 Livermore Flying Electrons · AMA Charter #157</div><div class="footer-links"><a href="https://www.lferc.com/weather.php" target="_blank" rel="noopener noreferrer">Weather & Cameras</a><a href="https://www.lferc.com/PhotoAlbum/" target="_blank" rel="noopener noreferrer">Photo Gallery</a><span>Contact Us</span><span>f ◉ ▶</span></div></div>
   </footer>
 </div>
 
@@ -650,6 +839,19 @@
   const mobileToggle = document.getElementById('mobileToggle');
   const toast = document.getElementById('toast');
   let toastTimer;
+
+  function setExternalImageState(img, loaded) {
+    img.classList.toggle('is-loaded', loaded);
+    img.closest('.media-frame')?.classList.toggle('has-image', loaded);
+    if (img.id === 'heroPhoto') document.querySelector('.hero')?.classList.toggle('has-hero-photo', loaded);
+  }
+
+  document.querySelectorAll('[data-external-image]').forEach(img => {
+    const check = () => setExternalImageState(img, img.naturalWidth > 0);
+    img.addEventListener('load', check);
+    img.addEventListener('error', () => setExternalImageState(img, false));
+    if (img.complete) check();
+  });
 
   function showToast(message) {
     toast.textContent = message;
@@ -729,23 +931,41 @@
   joinModal.addEventListener('click', e => { if (e.target === joinModal) joinModal.classList.remove('open'); });
   document.getElementById('joinForm').addEventListener('submit', e => { e.preventDefault(); joinModal.classList.remove('open'); showToast('Application saved — checkout would begin next'); });
 
-  const conditions = [
-    {temp:72, text:'Sunny', wind:'8 mph WSW'},
-    {temp:74, text:'Mostly Sunny', wind:'9 mph W'},
-    {temp:70, text:'Clear', wind:'6 mph SW'}
-  ];
-  let conditionIndex = 0;
-  document.getElementById('refreshWeather').addEventListener('click', () => {
-    conditionIndex = (conditionIndex + 1) % conditions.length;
-    const c = conditions[conditionIndex];
-    document.getElementById('tempDisplay').textContent = c.temp + '°';
-    document.getElementById('conditionDisplay').textContent = c.text;
-    document.getElementById('windDisplay').textContent = c.wind;
-    const time = new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
-    document.getElementById('weatherTime').textContent = time;
-    document.getElementById('statusTime').textContent = time;
-    showToast('Field conditions refreshed');
+  const webcamBaseUrl = 'http://webcam.lferc.com:8094/videostream.cgi?user=visitor&pwd=visitor1&rate=14';
+  const liveWebcam = document.getElementById('liveWebcam');
+  const liveWebcamFrame = document.getElementById('liveWebcamFrame');
+  const reloadCamera = document.getElementById('reloadCamera');
+  const cameraProtocolNote = document.getElementById('cameraProtocolNote');
+
+  if (liveWebcam && liveWebcamFrame) {
+    liveWebcam.addEventListener('load', () => liveWebcamFrame.classList.remove('stream-error'));
+    liveWebcam.addEventListener('error', () => {
+      liveWebcamFrame.classList.add('stream-error');
+      showToast('Live camera unavailable — showing the local fallback');
+    });
+  }
+  reloadCamera?.addEventListener('click', () => {
+    liveWebcamFrame?.classList.remove('stream-error');
+    liveWebcam.src = webcamBaseUrl + '&_=' + Date.now();
+    showToast('Reloading the live camera feed');
   });
+  if (location.protocol !== 'https:') cameraProtocolNote?.classList.add('nonsecure-host');
+
+  async function loadHostedLfercForecast() {
+    if (!/(^|\.)lferc\.com$/i.test(location.hostname)) return;
+    try {
+      const response = await fetch('/NWSForecast.php?inc=xml', {method: 'POST', cache: 'no-store'});
+      if (!response.ok) throw new Error('Forecast request failed');
+      const xml = new DOMParser().parseFromString(await response.text(), 'application/xml');
+      const forecastHtml = xml.querySelector('wxdata')?.textContent;
+      if (!forecastHtml) throw new Error('Forecast data missing');
+      document.getElementById('forecastLiveRegion').innerHTML = forecastHtml;
+      document.getElementById('forecastUpdated').textContent = 'Live forecast loaded from the LFERC National Weather Service feed.';
+    } catch (error) {
+      console.warn('Using standalone forecast fallback:', error);
+    }
+  }
+  loadHostedLfercForecast();
 
   const dashOverview = document.getElementById('dash-overview');
   const dashPlaceholder = document.getElementById('dash-placeholder');
